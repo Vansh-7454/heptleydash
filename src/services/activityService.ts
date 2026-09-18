@@ -30,14 +30,18 @@ export const activityService = {
 
   log: async (data: any): Promise<Activity> => {
     try {
+      const isLead = data.entityType === 'lead';
+      const entityId = data.entityId || data.customerId || data.leadId;
       const res = await api.post<{
         success: boolean;
         activity: any;
       }>('/activities', {
-        title: data.description || 'Activity logged',
+        title: data.title || data.description || 'Activity logged',
         type: data.type || 'Note',
         description: data.description || '',
         entityName: data.entityName || '',
+        customerId: !isLead && entityId ? entityId : (data.customerId || undefined),
+        leadId: isLead && entityId ? entityId : (data.leadId || undefined),
       });
 
       const a = res.activity;

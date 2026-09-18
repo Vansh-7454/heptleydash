@@ -37,7 +37,7 @@ app.use('/api/', apiLimiter);
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    service: 'Heptley Business Management & CRM API',
+    service: 'heptley Business Management & CRM API',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
   });

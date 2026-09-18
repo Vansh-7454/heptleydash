@@ -19,7 +19,7 @@ export default function LogActivityModal() {
 
   const [type, setType] = useState<ActivityType>('Call');
   const [targetType, setTargetType] = useState<'customer' | 'lead' | 'general'>('customer');
-  const [selectedEntityId, setSelectedEntityId] = useState(customers[0]?.id || '');
+  const [selectedEntityId, setSelectedEntityId] = useState(customers[0]?.customerId || customers[0]?.id || '');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export default function LogActivityModal() {
   useEffect(() => {
     if (isLogActivityModalOpen && detailedCustomerView) {
       setTargetType('customer');
-      setSelectedEntityId(detailedCustomerView.id);
+      setSelectedEntityId(detailedCustomerView.customerId || detailedCustomerView.id);
     }
   }, [isLogActivityModalOpen, detailedCustomerView]);
 
@@ -44,13 +44,13 @@ export default function LogActivityModal() {
     let company: string | undefined;
 
     if (targetType === 'customer') {
-      const c = customers.find((cust) => cust.id === selectedEntityId);
+      const c = customers.find((cust) => cust.customerId === selectedEntityId || cust.id === selectedEntityId);
       if (c) {
         entityName = c.name;
         company = c.company;
       }
     } else if (targetType === 'lead') {
-      const l = leads.find((lead) => lead.id === selectedEntityId);
+      const l = leads.find((lead) => lead.leadId === selectedEntityId || lead.id === selectedEntityId);
       if (l) {
         entityName = l.name;
         company = l.company;
@@ -82,8 +82,8 @@ export default function LogActivityModal() {
 
   const entityOptions =
     targetType === 'customer'
-      ? customers.map((c) => ({ value: c.id, label: `${c.name} (${c.company})` }))
-      : leads.map((l) => ({ value: l.id, label: `${l.name} (${l.company})` }));
+      ? customers.map((c) => ({ value: c.customerId || c.id, label: `${c.name} (${c.company})` }))
+      : leads.map((l) => ({ value: l.leadId || l.id, label: `${l.name} (${l.company})` }));
 
   return (
     <Modal

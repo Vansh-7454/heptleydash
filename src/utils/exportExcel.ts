@@ -12,7 +12,7 @@ export async function exportCustomersToExcel(
   filename?: string
 ) {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Heptley Technologies CRM';
+  workbook.creator = 'heptley CRM';
   workbook.created = new Date();
   workbook.properties.date1904 = false;
 
@@ -353,7 +353,7 @@ export async function exportPaymentsToExcel(
   filename?: string
 ) {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Heptley Technologies CRM';
+  workbook.creator = 'heptley CRM';
   workbook.created = new Date();
 
   const worksheet = workbook.addWorksheet('Payments Ledger', {

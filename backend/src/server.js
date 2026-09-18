@@ -24,7 +24,7 @@ const startServer = async () => {
 
     server.listen(PORT, () => {
       console.log(`\n==================================================`);
-      console.log(`🚀 Heptley CRM Backend running on port ${PORT}`);
+      console.log(`🚀 heptley CRM Backend running on port ${PORT}`);
       console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
       console.log(`⚡ Real-Time Socket.IO: Activated`);
       console.log(`🔗 Allowed Client: ${process.env.CLIENT_ORIGIN || 'http://localhost:3000'}`);

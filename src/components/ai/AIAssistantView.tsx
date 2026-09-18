@@ -126,7 +126,7 @@ export default function AIAssistantView() {
       const welcome: ChatMessage = {
         id: 'msg_welcome',
         sender: 'assistant',
-        text: `Hello ${userProfile.name.split(' ')[0]}! I am your Heptley AI Sales Agent powered by Gemini.\n\nI can analyze accounts, find overdue follow-ups, evaluate pipeline leads, draft tailored client messages, and transform meeting notes into confirmed CRM actions. What would you like to explore?`,
+        text: `Hello ${userProfile.name.split(' ')[0]}! I am your heptley AI Sales Agent powered by Gemini.\n\nI can analyze accounts, find overdue follow-ups, evaluate pipeline leads, draft tailored client messages, and transform meeting notes into confirmed CRM actions. What would you like to explore?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         suggestedActions: [
           'Draft WhatsApp message for new customer',
@@ -170,7 +170,7 @@ export default function AIAssistantView() {
     const welcome: ChatMessage = {
       id: `msg_welcome_${Date.now()}`,
       sender: 'assistant',
-      text: `Hello ${userProfile.name.split(' ')[0]}! I am your Heptley AI Sales Agent powered by Gemini.\n\nI can analyze accounts, find overdue follow-ups, evaluate pipeline leads, draft tailored client messages, and transform meeting notes into confirmed CRM actions. What would you like to explore?`,
+      text: `Hello ${userProfile.name.split(' ')[0]}! I am your heptley AI Sales Agent powered by Gemini.\n\nI can analyze accounts, find overdue follow-ups, evaluate pipeline leads, draft tailored client messages, and transform meeting notes into confirmed CRM actions. What would you like to explore?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       suggestedActions: [
         'Show my overdue follow-ups',
@@ -634,7 +634,7 @@ export default function AIAssistantView() {
                     {msg.sender === 'assistant' ? (
                       <>
                         <Sparkles size={13} style={{ color: 'var(--brand-accent)' }} />
-                        <strong style={{ color: 'var(--text-primary)' }}>Heptley AI Sales Agent</strong>
+                        <strong style={{ color: 'var(--text-primary)' }}>heptley AI Sales Agent</strong>
                       </>
                     ) : (
                       <>

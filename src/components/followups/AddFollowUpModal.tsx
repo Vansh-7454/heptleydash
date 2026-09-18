@@ -19,7 +19,7 @@ export default function AddFollowUpModal() {
 
   const [title, setTitle] = useState('');
   const [entityType, setEntityType] = useState<'customer' | 'lead'>('customer');
-  const [selectedEntityId, setSelectedEntityId] = useState(customers[0]?.id || '');
+  const [selectedEntityId, setSelectedEntityId] = useState(customers[0]?.customerId || customers[0]?.id || '');
   const [date, setDate] = useState('2026-09-17');
   const [time, setTime] = useState('15:00');
   const [type, setType] = useState<FollowUpType>('Call');
@@ -44,13 +44,13 @@ export default function AddFollowUpModal() {
     let company = '';
 
     if (entityType === 'customer') {
-      const c = customers.find((cust) => cust.id === selectedEntityId);
+      const c = customers.find((cust) => cust.customerId === selectedEntityId || cust.id === selectedEntityId);
       if (c) {
         entityName = c.name;
         company = c.company;
       }
     } else {
-      const l = leads.find((lead) => lead.id === selectedEntityId);
+      const l = leads.find((lead) => lead.leadId === selectedEntityId || lead.id === selectedEntityId);
       if (l) {
         entityName = l.name;
         company = l.company;
@@ -89,8 +89,8 @@ export default function AddFollowUpModal() {
 
   const entityOptions =
     entityType === 'customer'
-      ? customers.map((c) => ({ value: c.id, label: `${c.name} (${c.company})` }))
-      : leads.map((l) => ({ value: l.id, label: `${l.name} (${l.company})` }));
+      ? customers.map((c) => ({ value: c.customerId || c.id, label: `${c.name} (${c.company})` }))
+      : leads.map((l) => ({ value: l.leadId || l.id, label: `${l.name} (${l.company})` }));
 
   return (
     <Modal

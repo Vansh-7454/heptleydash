@@ -443,7 +443,7 @@ export default function CustomerDetailsView() {
           </p>
         </Card>
 
-        <Card title="Internal Administrative Remarks" subtitle="Confidential notes for Heptley management and reps">
+        <Card title="Internal Administrative Remarks" subtitle="Confidential notes for heptley management and reps">
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             {customer.internalRemarks || 'No internal remarks registered.'}
           </p>

@@ -65,27 +65,35 @@ const activityController = {
         });
       }
 
-      // Verify ownership if customerId is provided
+      // Verify ownership & resolve canonical customerId if provided
+      let resolvedCustomerId = null;
       if (customerId) {
         const custQuery = customerId.startsWith('CUS-') ? { customerId } : { _id: customerId };
         const customer = await Customer.findOne(custQuery);
-        if (customer && req.user.role === 'sales' && customer.salesMemberId !== req.user.salesMemberId) {
-          return res.status(403).json({
-            success: false,
-            message: 'Forbidden: You do not have permission to log activities on accounts assigned to other representatives.',
-          });
+        if (customer) {
+          resolvedCustomerId = customer.customerId;
+          if (req.user.role === 'sales' && customer.salesMemberId !== req.user.salesMemberId) {
+            return res.status(403).json({
+              success: false,
+              message: 'Forbidden: You do not have permission to log activities on accounts assigned to other representatives.',
+            });
+          }
         }
       }
 
-      // Verify ownership if leadId is provided
+      // Verify ownership & resolve canonical leadId if provided
+      let resolvedLeadId = null;
       if (leadId) {
         const leadQuery = leadId.startsWith('LEAD-') ? { leadId } : { _id: leadId };
         const lead = await Lead.findOne(leadQuery);
-        if (lead && req.user.role === 'sales' && lead.salesMemberId !== req.user.salesMemberId) {
-          return res.status(403).json({
-            success: false,
-            message: 'Forbidden: You do not have permission to log activities on leads assigned to other representatives.',
-          });
+        if (lead) {
+          resolvedLeadId = lead.leadId;
+          if (req.user.role === 'sales' && lead.salesMemberId !== req.user.salesMemberId) {
+            return res.status(403).json({
+              success: false,
+              message: 'Forbidden: You do not have permission to log activities on leads assigned to other representatives.',
+            });
+          }
         }
       }
 
@@ -95,8 +103,8 @@ const activityController = {
           : requestedSalesMemberId || 'SM-001';
 
       const activity = await Activity.create({
-        customerId: customerId || null,
-        leadId: leadId || null,
+        customerId: resolvedCustomerId,
+        leadId: resolvedLeadId,
         salesMemberId: assignedMemberId,
         salesMemberName: req.user.name,
         entityName: entityName ? entityName.trim() : '',

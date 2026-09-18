@@ -102,7 +102,7 @@ export default function ActivitiesView() {
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>
             {role === 'sales'
               ? 'Record of your interactions, client calls, and portfolio events.'
-              : 'Audit record of all team interactions and business events across Heptley.'}
+              : 'Audit record of all team interactions and business events across heptley.'}
           </p>
         </div>
 

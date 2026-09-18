@@ -8,9 +8,9 @@ import { PaymentMethod } from '@/types';
 export default function RecordPaymentModal() {
   const { isRecordPaymentModalOpen, setIsRecordPaymentModalOpen, recordPayment, customers } = useDashboard();
 
-  const [customerId, setCustomerId] = useState(customers[0]?.id || '');
-  const [totalAmount, setTotalAmount] = useState('100000');
-  const [amountPaid, setAmountPaid] = useState('100000');
+  const [customerId, setCustomerId] = useState(customers[0]?.customerId || customers[0]?.id || '');
+  const [totalAmount, setTotalAmount] = useState(customers[0] ? String(customers[0].finalAmount) : '');
+  const [amountPaid, setAmountPaid] = useState(customers[0] ? String(customers[0].remainingAmount || customers[0].finalAmount) : '');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Bank Transfer');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState('');
@@ -19,7 +19,7 @@ export default function RecordPaymentModal() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const selectedCustomer = customers.find((c) => c.id === customerId);
+  const selectedCustomer = customers.find((c) => c.customerId === customerId || c.id === customerId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +41,7 @@ export default function RecordPaymentModal() {
     setIsLoading(true);
     try {
       await recordPayment({
-        customerId: selectedCustomer.id,
+        customerId: selectedCustomer.customerId || selectedCustomer.id,
         customerName: selectedCustomer.name,
         company: selectedCustomer.company,
         totalAmount: total,
@@ -92,14 +92,14 @@ export default function RecordPaymentModal() {
           onChange={(e) => {
             const cid = e.target.value;
             setCustomerId(cid);
-            const found = customers.find((c) => c.id === cid);
+            const found = customers.find((c) => c.customerId === cid || c.id === cid);
             if (found) {
               setTotalAmount(String(found.finalAmount));
               setAmountPaid(String(found.remainingAmount || found.finalAmount));
             }
           }}
           options={customers.map((c) => ({
-            value: c.id,
+            value: c.customerId || c.id,
             label: `${c.name} - ${c.company} (Remaining: ₹${c.remainingAmount.toLocaleString('en-IN')})`,
           }))}
         />

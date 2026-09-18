@@ -1,4 +1,6 @@
 const FollowUp = require('../models/FollowUp');
+const Customer = require('../models/Customer');
+const Lead = require('../models/Lead');
 const Activity = require('../models/Activity');
 const Notification = require('../models/Notification');
 const idService = require('../services/idService');
@@ -94,12 +96,26 @@ const followUpController = {
           ? req.user.salesMemberId
           : requestedSalesMemberId || 'SM-001';
 
+      // Normalize customerId to canonical CUS-XXXX ID if ObjectId was passed
+      let resolvedCustomerId = customerId ? String(customerId).trim() : null;
+      if (resolvedCustomerId && !resolvedCustomerId.startsWith('CUS-')) {
+        const cust = await Customer.findById(resolvedCustomerId);
+        if (cust) resolvedCustomerId = cust.customerId;
+      }
+
+      // Normalize leadId to canonical LEAD-XXXX ID if ObjectId was passed
+      let resolvedLeadId = leadId ? String(leadId).trim() : null;
+      if (resolvedLeadId && !resolvedLeadId.startsWith('LEAD-')) {
+        const ld = await Lead.findById(resolvedLeadId);
+        if (ld) resolvedLeadId = ld.leadId;
+      }
+
       const followUpId = await idService.getNextFollowUpId();
 
       const followUp = await FollowUp.create({
         followUpId,
-        customerId: customerId || null,
-        leadId: leadId || null,
+        customerId: resolvedCustomerId,
+        leadId: resolvedLeadId,
         entityType: entityType || (customerId ? 'Customer' : 'Lead'),
         entityName: entityName.trim(),
         company: company ? company.trim() : '',

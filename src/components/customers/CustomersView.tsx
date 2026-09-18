@@ -92,7 +92,7 @@ export default function CustomersView() {
             {role === 'sales' ? 'My Customers' : 'Customers'}
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>
-            Manage customers currently being handled by Heptley.
+            Manage customers currently being handled by heptley.
           </p>
         </div>
 
@@ -141,7 +141,7 @@ export default function CustomersView() {
       >
         <span style={{ fontSize: '1rem' }}>📌</span>
         <div>
-          <strong>Customer Account vs Lead:</strong> A <em>Customer</em> is an active client who has already signed or purchased an ongoing service with Heptley. Prospective deals and qualified opportunities belong in the{' '}
+          <strong>Customer Account vs Lead:</strong> A <em>Customer</em> is an active client who has already signed or purchased an ongoing service with heptley. Prospective deals and qualified opportunities belong in the{' '}
           <button
             onClick={() => (role === 'admin' ? setActiveAdminTab('leads') : setActiveSalesTab('my-leads'))}
             style={{
