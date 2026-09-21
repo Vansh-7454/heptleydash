@@ -17,12 +17,12 @@ async function cleanDatabase() {
 
   const db = mongoose.connection.db;
 
-  // 1. Clean Users: Keep only admin@heptley.com, sales01@heptley.com, sales02@heptley.com, sales03@heptley.com
+  // 1. Clean Users: Keep only admin@heptley.com, sales01@heptley.com, sales02@heptley.com, developer@heptley.com
   const preservedEmails = [
     'admin@heptley.com',
     'sales01@heptley.com',
     'sales02@heptley.com',
-    'sales03@heptley.com',
+    'developer@heptley.com',
   ];
 
   const userDeleteResult = await db.collection('users').deleteMany({

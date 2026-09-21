@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { Customer } from '@/types';
+import { Customer, UserRole } from '@/types';
 
 /**
  * Generates an ultra-premium, styled, colored Microsoft Excel (.xlsx) workbook
@@ -8,7 +8,7 @@ import { Customer } from '@/types';
  */
 export async function exportCustomersToExcel(
   customers: Customer[],
-  role: 'admin' | 'sales',
+  role: UserRole,
   filename?: string
 ) {
   const workbook = new ExcelJS.Workbook();
@@ -17,45 +17,14 @@ export async function exportCustomersToExcel(
   workbook.properties.date1904 = false;
 
   const isAdmin = role === 'admin';
-  const sheetName = isAdmin ? 'Master Accounts Ledger' : 'Client Portfolio';
+  const sheetName = isAdmin ? 'Customer Directory' : 'My Client Portfolio';
   const worksheet = workbook.addWorksheet(sheetName, {
     views: [{ state: 'frozen', xSplit: 0, ySplit: 3, showGridLines: true }],
     pageSetup: { fitToPage: true, orientation: 'landscape' },
   });
 
-  // 1. Column Definitions with LARGE widths so NO text is ever truncated
-  const adminColumns = [
-    { header: 'CUSTOMER ID', key: 'customerId', width: 22 },
-    { header: 'CLIENT CONTACT', key: 'name', width: 32 },
-    { header: 'COMPANY NAME', key: 'company', width: 38 },
-    { header: 'WORK EMAIL', key: 'email', width: 38 },
-    { header: 'PHONE NUMBER', key: 'phone', width: 24 },
-    { header: 'ALTERNATE PHONE', key: 'alternatePhone', width: 24 },
-    { header: 'LOCATION / CITY', key: 'location', width: 26 },
-    { header: 'WEBSITE', key: 'website', width: 30 },
-    { header: 'SERVICE DOMAIN', key: 'service', width: 34 },
-    { header: 'PACKAGE TIER', key: 'package', width: 26 },
-    { header: 'CONTRACT START DATE', key: 'startDate', width: 24 },
-    { header: 'CONTRACT END DATE', key: 'endDate', width: 24 },
-    { header: 'CONTRACT STATUS', key: 'status', width: 24 },
-    { header: 'PROJECT STATUS', key: 'projectStatus', width: 24 },
-    { header: 'ACCOUNT STATUS', key: 'customerStatus', width: 22 },
-    { header: 'ASSIGNED SALES REP', key: 'salesMemberName', width: 30 },
-    { header: 'REP ID', key: 'salesMemberId', width: 18 },
-    { header: 'LEAD SOURCE', key: 'leadSource', width: 26 },
-    { header: 'GROSS DEAL VALUE (INR)', key: 'dealValue', width: 28 },
-    { header: 'DISCOUNT APPLIED (INR)', key: 'discount', width: 26 },
-    { header: 'FINAL CONTRACT VALUE (INR)', key: 'finalAmount', width: 30 },
-    { header: 'TOTAL COLLECTED (INR)', key: 'amountPaid', width: 28 },
-    { header: 'BALANCE REMAINING (INR)', key: 'remainingAmount', width: 28 },
-    { header: 'PAYMENT STATUS', key: 'paymentStatus', width: 24 },
-    { header: 'PAYMENT METHOD', key: 'paymentMethod', width: 26 },
-    { header: 'LAST PAYMENT DATE', key: 'lastPaymentDate', width: 24 },
-    { header: 'REMARKS & NOTES', key: 'notes', width: 44 },
-    { header: 'ONBOARDING DATE', key: 'createdAt', width: 24 },
-  ];
-
-  const salesColumns = [
+  // 1. Column Definitions with generous widths for clean display
+  const columns = [
     { header: 'CUSTOMER ID', key: 'customerId', width: 22 },
     { header: 'CLIENT CONTACT', key: 'name', width: 32 },
     { header: 'COMPANY NAME', key: 'company', width: 38 },
@@ -78,7 +47,6 @@ export async function exportCustomersToExcel(
     { header: 'ONBOARDING DATE', key: 'createdAt', width: 24 },
   ];
 
-  const columns = isAdmin ? adminColumns : salesColumns;
   worksheet.columns = columns.map((c) => ({ key: c.key, width: c.width }));
 
   // 2. Large Executive Title Banner (Row 1) - Height 44pt
@@ -87,8 +55,8 @@ export async function exportCustomersToExcel(
   worksheet.mergeCells(1, 1, 1, columns.length);
   const titleCell = titleRow.getCell(1);
   titleCell.value = isAdmin
-    ? 'HEPTLEY ENTERPRISE CRM — EXECUTIVE MASTER CUSTOMER LEDGER'
-    : 'HEPTLEY ENTERPRISE CRM — CLIENT PORTFOLIO OVERVIEW';
+    ? 'HEPTLEY ENTERPRISE CRM — EXECUTIVE MASTER CUSTOMER DIRECTORY'
+    : 'HEPTLEY ENTERPRISE CRM — PERSONAL ASSIGNED CLIENT PORTFOLIO';
   titleCell.font = { name: 'Calibri', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
   titleCell.fill = {
     type: 'pattern',
@@ -106,9 +74,7 @@ export async function exportCustomersToExcel(
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  })} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST | Security Scope: ${
-    isAdmin ? 'Organization-wide Financial & Operational Access' : 'Representative Operational Accounts'
-  } | Total Records: ${customers.length} Account(s)`;
+  })} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST | ${isAdmin ? 'Total Company Records' : 'Personal Assigned Records'}: ${customers.length} Account(s)`;
   subCell.font = { name: 'Calibri', size: 10.5, italic: true, color: { argb: 'FFCBD5E1' } };
   subCell.fill = {
     type: 'pattern',
@@ -132,8 +98,6 @@ export async function exportCustomersToExcel(
       headerColor = 'FF312E81'; // Indigo 900 (Lifecycle & Timeline)
     } else if (['salesMemberName', 'salesMemberId', 'leadSource'].includes(col.key)) {
       headerColor = 'FF0F766E'; // Teal 700 (Attribution)
-    } else if (['dealValue', 'discount', 'finalAmount', 'amountPaid', 'remainingAmount', 'paymentStatus', 'paymentMethod', 'lastPaymentDate'].includes(col.key)) {
-      headerColor = 'FF065F46'; // Emerald Green 800 (Financial Ledger)
     } else if (['notes', 'createdAt'].includes(col.key)) {
       headerColor = 'FF18181B'; // Zinc 900 (Audit & Remarks)
     }
@@ -146,7 +110,7 @@ export async function exportCustomersToExcel(
 
     cell.alignment = {
       vertical: 'middle',
-      horizontal: col.header.includes('(INR)') ? 'right' : 'center',
+      horizontal: 'center',
       wrapText: true,
     };
 
@@ -201,17 +165,6 @@ export async function exportCustomersToExcel(
         createdAt: c.createdAt ? c.createdAt.split('T')[0] : '—',
       };
 
-      if (isAdmin) {
-        rowData.dealValue = c.dealValue ?? c.finalAmount ?? 0;
-        rowData.discount = c.discount ?? 0;
-        rowData.finalAmount = c.finalAmount ?? 0;
-        rowData.amountPaid = c.amountPaid ?? 0;
-        rowData.remainingAmount = c.remainingAmount ?? 0;
-        rowData.paymentStatus = c.paymentStatus || 'Pending';
-        rowData.paymentMethod = c.paymentMethod || '—';
-        rowData.lastPaymentDate = c.lastPaymentDate ? c.lastPaymentDate.split('T')[0] : '—';
-      }
-
       columns.forEach((col, colIdx) => {
         const cell = row.getCell(colIdx + 1);
         const val = rowData[col.key];
@@ -239,13 +192,13 @@ export async function exportCustomersToExcel(
         }
 
         // Status Pill Highlights (Vibrant colors + Bold text)
-        if (col.key === 'status' || col.key === 'customerStatus' || col.key === 'paymentStatus' || col.key === 'projectStatus') {
+        if (col.key === 'status' || col.key === 'customerStatus' || col.key === 'projectStatus') {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
           const sVal = String(val);
-          if (['Active', 'Paid', 'Completed'].includes(sVal)) {
+          if (['Active', 'Completed'].includes(sVal)) {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } }; // Emerald 100
             cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF065F46' } }; // Emerald 800
-          } else if (['Pending', 'Partial', 'In Progress', 'Planning'].includes(sVal)) {
+          } else if (['Pending', 'In Progress', 'Planning'].includes(sVal)) {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } }; // Amber 100
             cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF92400E' } }; // Amber 800
           } else if (['Overdue', 'On Hold', 'Cancelled', 'Inactive'].includes(sVal)) {
@@ -257,42 +210,19 @@ export async function exportCustomersToExcel(
           }
         }
 
-        // Financial Currency Formatting
-        if (['dealValue', 'discount', 'finalAmount', 'amountPaid', 'remainingAmount'].includes(col.key)) {
-          cell.numFmt = '[$₹-4009] #,##0;([$₹-4009] #,##0);"-"';
-          cell.alignment = { vertical: 'middle', horizontal: 'right', indent: 1 };
-
-          if (col.key === 'finalAmount') {
-            cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F9FF' } }; // Soft Ice Blue tint
-          }
-          if (col.key === 'amountPaid') {
-            cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF047857' } };
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFECFDF5' } }; // Soft Mint Green tint
-          }
-          if (col.key === 'remainingAmount') {
-            if (Number(val) > 0) {
-              cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFB91C1C' } };
-              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF1F2' } }; // Soft Rose tint
-            } else {
-              cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF059669' } };
-            }
-          }
-        }
-
         // Dates Centering
-        if (['startDate', 'endDate', 'lastPaymentDate', 'createdAt'].includes(col.key)) {
+        if (['startDate', 'endDate', 'createdAt'].includes(col.key)) {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
           cell.font = { name: 'Calibri', size: 10.5, color: { argb: 'FF334155' } };
         }
       });
     });
 
-    // 6. Summary Totals Row for Admin - Height 36pt
-    if (isAdmin && customers.length > 0) {
+    // 6. Summary Footer Row - Height 34pt
+    if (customers.length > 0) {
       const summaryRowNum = customers.length + 4;
       const summaryRow = worksheet.getRow(summaryRowNum);
-      summaryRow.height = 36;
+      summaryRow.height = 34;
 
       columns.forEach((col, colIdx) => {
         const cell = summaryRow.getCell(colIdx + 1);
@@ -309,17 +239,9 @@ export async function exportCustomersToExcel(
         };
 
         if (colIdx === 0) {
-          cell.value = 'TOTAL PORTFOLIO SUMMARY';
-          cell.font = { name: 'Calibri', size: 11.5, bold: true, color: { argb: 'FF0F172A' } };
+          cell.value = `${isAdmin ? 'TOTAL COMPANY ACCOUNTS' : 'TOTAL ASSIGNED ACCOUNTS'}: ${customers.length}`;
+          cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
           cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-        } else if (['dealValue', 'discount', 'finalAmount', 'amountPaid', 'remainingAmount'].includes(col.key)) {
-          const colLetter = worksheet.getColumn(colIdx + 1).letter;
-          cell.value = {
-            formula: `SUM(${colLetter}4:${colLetter}${summaryRowNum - 1})`,
-          };
-          cell.numFmt = '[$₹-4009] #,##0';
-          cell.font = { name: 'Calibri', size: 11.5, bold: true, color: { argb: 'FF0F172A' } };
-          cell.alignment = { vertical: 'middle', horizontal: 'right', indent: 1 };
         }
       });
     }
@@ -328,7 +250,7 @@ export async function exportCustomersToExcel(
   // 7. Write to buffer and trigger browser download
   const buffer = await workbook.xlsx.writeBuffer();
   const fileDate = new Date().toISOString().split('T')[0];
-  const finalFilename = filename || (isAdmin ? `heptley_master_ledger_${fileDate}.xlsx` : `heptley_portfolio_${fileDate}.xlsx`);
+  const finalFilename = filename || (isAdmin ? `heptley_master_customers_${fileDate}.xlsx` : `heptley_assigned_customers_${fileDate}.xlsx`);
 
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -341,7 +263,9 @@ export async function exportCustomersToExcel(
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 30000);
 }
 
 /**
@@ -539,5 +463,7 @@ export async function exportPaymentsToExcel(
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 30000);
 }

@@ -4,10 +4,15 @@ const notificationSchema = new mongoose.Schema(
   {
     recipientRole: {
       type: String,
-      enum: ['admin', 'sales', 'all'],
+      enum: ['admin', 'sales', 'developer', 'all'],
       default: 'all',
     },
     recipientSalesMemberId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    recipientDeveloperId: {
       type: String,
       trim: true,
       default: null,
@@ -46,6 +51,15 @@ const notificationSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    domainName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    domainExpiryDate: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -54,5 +68,6 @@ const notificationSchema = new mongoose.Schema(
 
 notificationSchema.index({ recipientRole: 1, recipientSalesMemberId: 1, read: 1 });
 notificationSchema.index({ createdAt: -1 });
+notificationSchema.index({ type: 1, targetId: 1, recipientRole: 1, domainExpiryDate: 1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

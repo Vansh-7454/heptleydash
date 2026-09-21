@@ -1,45 +1,45 @@
 :root {
-  /* Surfaces & Canvas - Lightened User Palette: #e6f4fb (Canvas), #bde7f6 (Cards) & #ffffff (Crisp White) */
-  --bg-app: #e6f4fb;                  /* Lightened, airy sky-blue canvas requested by user */
-  --bg-surface: #ffffff;              /* Crisp white surface for clean readable cards */
-  --bg-card-cyan: #ffffff;            /* Crisp white surface for cards ensuring complete distinction from sky canvas */
-  --bg-surface-subtle: #f0f9fd;       /* Recessed panels, search fields, table heads */
-  --bg-surface-hover: #e0f2fe;        /* Interactive hover state */
-  --bg-surface-active: #bae6fd;       /* Active/pressed state */
+  /* Surfaces & Canvas - Preview 1: Rich Cool Steel-Slate Canvas (#c8d7e6) with Crisp Elevated White (#ffffff) Cards */
+  --bg-app: #c8d7e6;                  /* Rich cool steel-slate canvas matching Preview 1 */
+  --bg-surface: #ffffff;              /* Crisp pure white surface for elevated cards */
+  --bg-card-cyan: #ffffff;            /* Crisp pure white cards */
+  --bg-surface-subtle: #e4edf5;       /* Recessed panels, search fields, table heads */
+  --bg-surface-hover: #dbe7f2;        /* Interactive hover state */
+  --bg-surface-active: #c5d5e5;       /* Active/pressed state */
   --bg-surface-elevated: #ffffff;     /* Floating modals, dropdowns, tooltips */
   
   /* Text & Foreground - Deep Obsidian Navy for maximum clarity & zero blur */
-  --text-primary: #021a29;            /* Ultra-crisp obsidian navy typography */
-  --text-secondary: #073857;          /* Rich navy secondary labels */
-  --text-muted: #1e3a52;              /* Crisp dark slate detail text (never faded) */
-  --text-light: #33536d;              /* Clear readable supporting text */
+  --text-primary: #091321;            /* Deep Obsidian Navy typography */
+  --text-secondary: #1e293b;          /* Rich Slate secondary labels */
+  --text-muted: #475569;              /* Balanced Graphite detail text */
+  --text-light: #64748b;              /* Clear readable supporting text */
   --text-inverse: #ffffff;            /* High-contrast pure white text */
 
-  /* Borders & Dividers */
-  --border-subtle: rgba(159, 216, 237, 0.25);
-  --border-default: rgba(159, 216, 237, 0.45);
-  --border-strong: #9fd8ed;
+  /* Borders & Dividers - Refined Architectural Lines */
+  --border-subtle: rgba(148, 163, 184, 0.3);
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
 
-  /* heptley Brand Colors - Sky & Ocean Cyan */
+  /* heptley Brand Colors - Sapphire & Cobalt Accents */
   --brand-primary: #0284c7;
-  --brand-primary-hover: #0369a1;
+  --brand-primary-hover: #0052a3;
   --brand-accent: #0284c7;
-  --brand-accent-hover: #0369a1;
-  --brand-accent-glow: rgba(159, 216, 237, 0.4);
-  --brand-accent-subtle: rgba(159, 216, 237, 0.22);
-  --brand-accent-light: rgba(159, 216, 237, 0.12);
-  --brand-accent-text: #0284c7;
-  --brand-cyan: #bde7f6;
-  --brand-sky: #e6f4fb;
+  --brand-accent-hover: #0052a3;
+  --brand-accent-glow: rgba(2, 132, 199, 0.25);
+  --brand-accent-subtle: #dbeafe;
+  --brand-accent-light: rgba(2, 132, 199, 0.08);
+  --brand-accent-text: #0369a1;
+  --brand-cyan: #dbeafe;
+  --brand-sky: #c8d7e6;
 
   /* Semantic Status Tokens (High Contrast) */
   --status-active-bg: #ecfdf5;
   --status-active-text: #065f46;
   --status-active-border: #a7f3d0;
 
-  --status-onboarding-bg: #f0f9fd;
+  --status-onboarding-bg: #eff6ff;
   --status-onboarding-text: #0284c7;
-  --status-onboarding-border: #bae6fd;
+  --status-onboarding-border: #bfdbfe;
 
   --status-pending-bg: #fffbeb;
   --status-pending-text: #92400e;
@@ -65,12 +65,12 @@
   --status-proposal-text: #6b21a8;
   --status-proposal-border: #e9d5ff;
 
-  /* Shadows - Crisp elevation with cyan tint */
-  --shadow-xs: 0 1px 2px 0 rgba(12, 74, 110, 0.05);
-  --shadow-sm: 0 2px 6px 0 rgba(12, 74, 110, 0.08), 0 1px 2px -1px rgba(12, 74, 110, 0.04);
-  --shadow-md: 0 4px 14px -2px rgba(12, 74, 110, 0.12), 0 2px 6px -1px rgba(12, 74, 110, 0.06);
-  --shadow-lg: 0 10px 24px -4px rgba(12, 74, 110, 0.14), 0 4px 8px -2px rgba(12, 74, 110, 0.06);
-  --shadow-xl: 0 20px 32px -8px rgba(12, 74, 110, 0.18);
+  /* Shadows - Crisp elevation with rich optical depth */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 32px -8px rgba(15, 23, 42, 0.14);
 
   /* Typography */
   --font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

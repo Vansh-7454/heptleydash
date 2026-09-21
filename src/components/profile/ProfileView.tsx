@@ -71,12 +71,12 @@ export default function ProfileView() {
               <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                 {userProfile.name}
               </h3>
-              <Badge variant={role === 'admin' ? 'info' : 'active'}>
-                {role === 'admin' ? 'Executive Admin' : 'Sales Member'}
+              <Badge variant={role === 'admin' ? 'info' : role === 'developer' ? 'success' : 'active'}>
+                {role === 'admin' ? 'Executive Admin' : role === 'developer' ? 'Software Developer' : 'Sales Member'}
               </Badge>
-              {memberId && (
+              {(userProfile.developerId || memberId) && (
                 <Badge variant="neutral">
-                  ID: {memberId}
+                  ID: {userProfile.developerId || memberId}
                 </Badge>
               )}
             </div>
@@ -84,7 +84,7 @@ export default function ProfileView() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.4rem', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
               <span>{userProfile.email}</span>
               <span>•</span>
-              <span>{userProfile.designation || (role === 'admin' ? 'Managing Director' : 'Senior Account Executive')}</span>
+              <span>{userProfile.designation || (role === 'admin' ? 'Managing Director' : role === 'developer' ? 'Software Engineer' : 'Senior Account Executive')}</span>
             </div>
           </div>
         </div>
@@ -125,17 +125,17 @@ export default function ProfileView() {
               Portal Role
             </div>
             <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--brand-accent)', marginTop: '0.15rem' }}>
-              {role === 'admin' ? 'Administrator' : 'Sales Member'}
+              {role === 'admin' ? 'Administrator' : role === 'developer' ? 'Software Developer' : 'Sales Member'}
             </div>
           </div>
 
-          {memberId && (
+          {(userProfile.developerId || memberId) && (
             <div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-                Sales Member ID
+                {userProfile.developerId ? 'Developer ID' : 'Sales Member ID'}
               </div>
               <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'monospace', marginTop: '0.15rem' }}>
-                {memberId}
+                {userProfile.developerId || memberId}
               </div>
             </div>
           )}

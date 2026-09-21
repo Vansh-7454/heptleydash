@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'sales';
+export type UserRole = 'admin' | 'sales' | 'developer';
 
 export interface UserProfile {
   id: string;
@@ -7,9 +7,25 @@ export interface UserProfile {
   phone: string;
   role: UserRole;
   salesMemberId?: string; // e.g. "SM-001" for sales
-  memberId?: string; // alias for salesMemberId
+  developerId?: string; // e.g. "DEV-001" for developer
+  memberId?: string; // alias
   avatarUrl?: string;
   designation?: string;
+}
+
+export interface Developer {
+  id: string;
+  developerId: string; // e.g. "DEV-001"
+  name: string;
+  email: string;
+  phone: string;
+  role: 'developer';
+  status: 'Active' | 'Inactive';
+  specialization?: string;
+  assignedWebsitesCount?: number;
+  assignedDomainsCount?: number;
+  assignedQuestionsCount?: number;
+  createdAt: string;
 }
 
 export interface SalesMember {
@@ -161,13 +177,136 @@ export interface Payment {
   createdAt: string;
 }
 
+export type WebsiteStatus =
+  | 'ACTIVE'
+  | 'LIVE'
+  | 'DEVELOPMENT'
+  | 'TESTING'
+  | 'MAINTENANCE'
+  | 'PAUSED'
+  | 'SUSPENDED'
+  | 'ARCHIVED';
+
+export interface Website {
+  id: string;
+  websiteId: string; // e.g. "WEB-0001"
+  websiteName: string;
+  websiteUrl: string;
+  name?: string;
+  url?: string;
+  projectType: string;
+  customerId?: string;
+  customerName?: string;
+  status: WebsiteStatus;
+  assignedDeveloperId?: string;
+  assignedDeveloperName?: string;
+  assignedDate?: string;
+  startDate?: string;
+  hostingProvider?: string;
+  hostingNotes?: string;
+  repositoryUrl?: string;
+  deploymentUrl?: string;
+  technologyStack?: string;
+  description?: string;
+  internalNotes?: string;
+  domainCount?: number;
+
+  // Integrated Domain Information (managed as part of Website record)
+  domainName?: string;
+  domainStartDate?: string;
+  domainExpiryDate?: string;
+  domainDaysRemaining?: number | null;
+  daysRemaining?: number | null;
+  domainStatus?: DomainStatus;
+  domainRegistrar?: string;
+  domainAutoRenew?: boolean;
+  domainNotes?: string;
+  customerCompany?: string;
+
+  // Client & Domain Document (PDF with small size in KB)
+  domainDocumentPdf?: string;
+  domainDocumentName?: string;
+  domainDocumentSizeKb?: number;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export type DomainStatus = 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED';
+
+export interface Domain {
+  id: string;
+  domainId: string; // e.g. "DOM-0001"
+  domainName: string;
+  websiteId: string; // e.g. "WEB-0001"
+  websiteName?: string;
+  websiteUrl?: string;
+  customerId?: string;
+  customerName?: string;
+  startDate: string; // YYYY-MM-DD
+  expiryDate: string; // YYYY-MM-DD
+  daysRemaining: number;
+  status: DomainStatus;
+  registrar: string;
+  autoRenew: boolean;
+  assignedDeveloperId?: string;
+  assignedDeveloperName?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SalesQuestionPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type SalesQuestionStatus = 'OPEN' | 'IN_PROGRESS' | 'ANSWERED' | 'CLOSED';
+
+export interface SalesQuestion {
+  id: string;
+  questionId: string; // e.g. "Q-0001"
+  subject?: string;
+  question: string;
+  customerId?: string;
+  customerName?: string;
+  websiteId?: string;
+  websiteName?: string;
+  websiteUrl?: string;
+  askedBySalesMemberId?: string;
+  askedBy?: string;
+  askedByName?: string;
+  assignedDeveloperId?: string;
+  assignedDeveloperName?: string;
+  priority: SalesQuestionPriority;
+  status: SalesQuestionStatus;
+  answer?: string;
+  answeredBy?: string;
+  answeredByName?: string;
+  answeredAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface TechnicalNote {
+  id: string;
+  title: string;
+  category: 'Infrastructure' | 'Architecture' | 'API' | 'Deployment' | 'Security';
+  content: string;
+  websiteId?: string;
+  updatedAt: string;
+}
+
 export type NotificationType =
   | 'customer_assigned'
   | 'followup_due'
   | 'followup_overdue'
   | 'lead_updated'
   | 'payment_received'
-  | 'customer_status_changed';
+  | 'customer_status_changed'
+  | 'domain_expiring_soon'
+  | 'domain_expired'
+  | 'new_sales_question'
+  | 'question_answered'
+  | 'website_created'
+  | 'website_updated';
 
 export interface Notification {
   id: string;
@@ -175,6 +314,7 @@ export interface Notification {
   message: string;
   type: NotificationType;
   timestamp: string;
+  createdAt?: string;
   read: boolean;
   targetTab?: string;
   targetId?: string;
@@ -194,19 +334,33 @@ export type AdminTab =
   | 'follow-ups'
   | 'activities'
   | 'payments'
+  | 'websites-domains'
+  | 'sales-questions'
+  | 'notifications'
   | 'reports'
   | 'ai-assistant'
-  | 'notifications'
   | 'settings'
   | 'profile';
 
 export type SalesTab =
   | 'dashboard'
-  | 'my-leads'
   | 'my-customers'
+  | 'my-leads'
   | 'follow-ups'
   | 'activities'
+  | 'payments'
+  | 'sales-questions'
+  | 'websites-domains'
   | 'ai-assistant'
   | 'notifications'
   | 'profile'
   | 'settings';
+
+export type DeveloperTab =
+  | 'dashboard'
+  | 'websites-domains'
+  | 'sales-questions'
+  | 'notifications'
+  | 'profile'
+  | 'settings';
+

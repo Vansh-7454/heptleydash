@@ -1,20 +1,33 @@
 import { api } from './api';
 
 export interface DashboardStats {
-  role: 'admin' | 'sales';
+  role: 'admin' | 'sales' | 'developer';
+  // Admin operational metrics
   totalSalesMembers?: number;
+  totalDevelopers?: number;
   totalCustomers?: number;
-  activeCustomers?: number;
   openLeads?: number;
   pendingFollowUps?: number;
-  overdueFollowUps?: number;
-  totalRevenue?: number;
-  totalCollected?: number;
-  totalOutstanding?: number;
+  activeWebsites?: number;
+  activeDomains?: number;
+  expiringDomains?: number;
+  openSalesQuestions?: number;
+
+  // Sales operational metrics
   myCustomers?: number;
   myOpenLeads?: number;
   todayFollowUps?: number;
+  overdueFollowUps?: number;
   completedFollowUps?: number;
+  myOpenQuestions?: number;
+
+  // Developer operational metrics
+  myWebsites?: number;
+  openQuestions?: number;
+
+  operationalStats?: any;
+  developerStats?: any;
+  [key: string]: any;
 }
 
 export const dashboardService = {
@@ -22,7 +35,7 @@ export const dashboardService = {
     try {
       const res = await api.get<{
         success: boolean;
-        role: 'admin' | 'sales';
+        role: 'admin' | 'sales' | 'developer';
         stats: any;
       }>('/dashboard/stats');
 

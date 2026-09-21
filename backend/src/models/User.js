@@ -28,8 +28,9 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['admin', 'sales'],
+      enum: ['admin', 'sales', 'developer'],
       default: 'sales',
+      lowercase: true,
       required: true,
     },
     salesMemberId: {
@@ -37,6 +38,17 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: null,
       sparse: true,
+    },
+    developerId: {
+      type: String,
+      trim: true,
+      default: null,
+      sparse: true,
+    },
+    specialization: {
+      type: String,
+      trim: true,
+      default: 'Full Stack',
     },
     status: {
       type: String,
@@ -50,12 +62,13 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Validation rule: salesMemberId is required when role === 'sales'
+// Validation rule: salesMemberId required for sales; developer and admin have no individual IDs
 userSchema.pre('validate', function (next) {
   if (this.role === 'sales' && !this.salesMemberId) {
     this.invalidate('salesMemberId', 'Sales members require a valid salesMemberId');
-  } else if (this.role === 'admin') {
+  } else if (this.role === 'developer' || this.role === 'admin') {
     this.salesMemberId = null;
+    this.developerId = null;
   }
   next();
 });

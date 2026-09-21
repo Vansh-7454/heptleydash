@@ -4,17 +4,19 @@ const FollowUp = require('../models/FollowUp');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
 const Activity = require('../models/Activity');
+const Website = require('../models/Website');
+const SalesQuestion = require('../models/SalesQuestion');
 
 const dashboardController = {
   // GET /api/dashboard/stats
   getStats: async (req, res, next) => {
     try {
       const todayStr = new Date().toISOString().split('T')[0];
-      const isSales = req.user.role === 'sales';
-      const salesMemberId = req.user.salesMemberId;
+      const role = req.user.role;
 
-      if (isSales) {
+      if (role === 'sales') {
         // Sales Representative Specific Metrics (isolated to assigned member)
+        const salesMemberId = req.user.salesMemberId;
         const [
           myCustomersCount,
           myOpenLeadsCount,
@@ -22,6 +24,7 @@ const dashboardController = {
           overdueFollowUpsCount,
           pendingFollowUpsCount,
           completedFollowUpsCount,
+          myOpenQuestionsCount,
         ] = await Promise.all([
           Customer.countDocuments({ salesMemberId, customerStatus: { $ne: 'Inactive' } }),
           Lead.countDocuments({ salesMemberId, status: { $nin: ['Won', 'Lost'] } }),
@@ -43,6 +46,10 @@ const dashboardController = {
             salesMemberId,
             status: 'Completed',
           }),
+          SalesQuestion.countDocuments({
+            askedBySalesMemberId: salesMemberId,
+            status: { $in: ['OPEN', 'IN_PROGRESS'] },
+          }),
         ]);
 
         return res.status(200).json({
@@ -55,62 +62,83 @@ const dashboardController = {
             overdueFollowUps: overdueFollowUpsCount,
             pendingFollowUps: pendingFollowUpsCount,
             completedFollowUps: completedFollowUpsCount,
+            myOpenQuestions: myOpenQuestionsCount,
           },
         });
       }
 
-      // Admin Organizational Metrics (across entire team)
+      if (role === 'developer') {
+        // Shared Developer Dashboard Metrics (All Organization Scope - No developerId filtering)
+        const [
+          totalWebsitesCount,
+          activeDomainsCount,
+          expiringDomainsCount,
+          openQuestionsCount,
+        ] = await Promise.all([
+          Website.countDocuments({}),
+          Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'ACTIVE' }),
+          Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'EXPIRING_SOON' }),
+          SalesQuestion.countDocuments({ status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
+        ]);
+
+        const devStats = {
+          totalWebsites: totalWebsitesCount,
+          totalWebsitesCount,
+          myWebsites: totalWebsitesCount,
+          myWebsitesCount: totalWebsitesCount,
+          activeDomains: activeDomainsCount,
+          activeDomainsCount,
+          expiringDomains: expiringDomainsCount,
+          expiringDomainsCount,
+          openQuestions: openQuestionsCount,
+          openQuestionsCount,
+        };
+
+        return res.status(200).json({
+          success: true,
+          role: 'developer',
+          stats: devStats,
+          developerStats: devStats,
+        });
+      }
+
+      // Admin Organizational Metrics (strictly operational - 8 cards, no revenue analytics, no developer management)
       const [
         totalSalesMembers,
         totalCustomers,
-        activeCustomers,
         openLeads,
         pendingFollowUps,
-        overdueFollowUps,
-        financialAggregation,
+        activeWebsites,
+        activeDomains,
+        expiringDomains,
+        openSalesQuestions,
       ] = await Promise.all([
         User.countDocuments({ role: 'sales', status: 'active' }),
         Customer.countDocuments({ customerStatus: { $ne: 'Inactive' } }),
-        Customer.countDocuments({ customerStatus: { $in: ['Active', 'Onboarding'] } }),
         Lead.countDocuments({ status: { $nin: ['Won', 'Lost'] } }),
         FollowUp.countDocuments({ status: 'Pending' }),
-        FollowUp.countDocuments({
-          status: { $nin: ['Completed', 'Cancelled'] },
-          $or: [{ date: { $lt: todayStr } }, { status: 'Overdue' }],
-        }),
-        Customer.aggregate([
-          { $match: { customerStatus: { $ne: 'Inactive' } } },
-          {
-            $group: {
-              _id: null,
-              totalRevenue: { $sum: '$finalAmount' },
-              totalCollected: { $sum: '$amountPaid' },
-              totalOutstanding: { $sum: '$remainingAmount' },
-            },
-          },
-        ]),
+        Website.countDocuments({ status: { $in: ['LIVE', 'ACTIVE'] } }),
+        Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'ACTIVE' }),
+        Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'EXPIRING_SOON' }),
+        SalesQuestion.countDocuments({ status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
       ]);
 
-      const financials = financialAggregation[0] || {
-        totalRevenue: 0,
-        totalCollected: 0,
-        totalOutstanding: 0,
+      const operationalStats = {
+        totalSalesMembers,
+        totalCustomers,
+        openLeads,
+        pendingFollowUps,
+        activeWebsites,
+        activeDomains,
+        expiringDomains,
+        openSalesQuestions,
       };
 
       res.status(200).json({
         success: true,
         role: 'admin',
-        stats: {
-          totalSalesMembers,
-          totalCustomers,
-          activeCustomers,
-          openLeads,
-          pendingFollowUps,
-          overdueFollowUps,
-          totalRevenue: financials.totalRevenue,
-          totalCollected: financials.totalCollected,
-          totalOutstanding: financials.totalOutstanding,
-        },
+        stats: operationalStats,
+        operationalStats,
       });
     } catch (err) {
       next(err);

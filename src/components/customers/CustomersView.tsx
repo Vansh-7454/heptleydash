@@ -14,6 +14,7 @@ export default function CustomersView() {
     customers,
     myCustomers,
     salesMembers,
+    userProfile,
     role,
     setIsAddCustomerModalOpen,
     setDetailedCustomerView,
@@ -28,8 +29,9 @@ export default function CustomersView() {
   const [repFilter, setRepFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'value'>('date');
 
-  // Determine base customer list (Role-aware: Sales Member sees only their customers by default)
-  const baseList = role === 'sales' ? myCustomers : customers;
+  // View Scope: Sales sees and exports their personal assigned accounts by default; Admin sees full company directory
+  const [viewScope, setViewScope] = useState<'mine' | 'all'>('mine');
+  const baseList = (role === 'sales' && viewScope === 'mine') ? myCustomers : customers;
 
   // Filter and Sort
   const filteredCustomers = baseList
@@ -54,12 +56,17 @@ export default function CustomersView() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-
   const [isExportingExcel, setIsExportingExcel] = useState(false);
   const handleExportExcel = async () => {
     setIsExportingExcel(true);
     try {
-      await exportCustomersToExcel(filteredCustomers, role || 'sales');
+      const fileDate = new Date().toISOString().split('T')[0];
+      const filename = role === 'sales'
+        ? (viewScope === 'all'
+            ? `heptley_all_customers_${fileDate}.xlsx`
+            : `heptley_${(userProfile?.name || 'sales').replace(/\s+/g, '_')}_assigned_customers_${fileDate}.xlsx`)
+        : `heptley_master_customers_${fileDate}.xlsx`;
+      await exportCustomersToExcel(filteredCustomers, role || 'sales', filename);
     } catch (err) {
       console.error('Failed to export Excel:', err);
     } finally {
@@ -80,21 +87,88 @@ export default function CustomersView() {
         }}
       >
         <div>
-          <h2
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.02em',
-              margin: '0 0 0.25rem 0',
-            }}
-          >
-            {role === 'sales' ? 'My Customers' : 'Customers'}
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>
-            Manage customers currently being handled by heptley.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <h2
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.02em',
+                margin: 0,
+              }}
+            >
+              Customers
+            </h2>
+            <span
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                color: '#0284c7',
+                backgroundColor: '#f0f9ff',
+                padding: '0.2rem 0.65rem',
+                borderRadius: '9999px',
+                border: '1px solid #bae6fd',
+              }}
+            >
+              {role === 'sales'
+                ? (viewScope === 'mine' ? `${myCustomers.length} assigned to me` : `${customers.length} total directory`)
+                : `${customers.length} total`}
+            </span>
+          </div>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
+            {role === 'sales'
+              ? 'Manage and track your personal assigned client accounts and active contracts.'
+              : 'Manage customers currently being handled by heptley.'}
           </p>
         </div>
+
+        {role === 'sales' && (
+          <div
+            style={{
+              display: 'inline-flex',
+              gap: '0.35rem',
+              backgroundColor: '#f1f5f9',
+              padding: '0.25rem',
+              borderRadius: '10px',
+              border: '1px solid #e2e8f0',
+            }}
+          >
+            <button
+              onClick={() => setViewScope('mine')}
+              style={{
+                padding: '0.35rem 0.85rem',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                backgroundColor: viewScope === 'mine' ? '#ffffff' : 'transparent',
+                color: viewScope === 'mine' ? '#0284c7' : '#64748b',
+                boxShadow: viewScope === 'mine' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              My Assigned ({myCustomers.length})
+            </button>
+            <button
+              onClick={() => setViewScope('all')}
+              style={{
+                padding: '0.35rem 0.85rem',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                backgroundColor: viewScope === 'all' ? '#ffffff' : 'transparent',
+                color: viewScope === 'all' ? '#0284c7' : '#64748b',
+                boxShadow: viewScope === 'all' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              All Directory ({customers.length})
+            </button>
+          </div>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Button
@@ -111,17 +185,19 @@ export default function CustomersView() {
               boxShadow: '0 1px 4px rgba(16, 185, 129, 0.15)',
             }}
           >
-            Export Formatted Excel (.xlsx)
+            {role === 'sales' ? (viewScope === 'mine' ? 'Export My Customers (.xlsx)' : 'Export Directory (.xlsx)') : 'Export Master Excel (.xlsx)'}
           </Button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            leftIcon={<Plus size={15} />}
-            onClick={() => setIsAddCustomerModalOpen(true)}
-          >
-            New Customer
-          </Button>
+          {role !== 'admin' && (
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Plus size={15} />}
+              onClick={() => setIsAddCustomerModalOpen(true)}
+            >
+              New Customer
+            </Button>
+          )}
         </div>
       </div>
 
@@ -206,17 +282,15 @@ export default function CustomersView() {
             ]}
           />
 
-          {role === 'admin' && (
-            <Select
-              value={repFilter}
-              onChange={(e) => setRepFilter(e.target.value)}
-              containerClassName="mb-0"
-              options={[
-                { value: 'all', label: 'All Sales Members' },
-                ...salesMembers.map((m) => ({ value: m.memberId, label: m.name })),
-              ]}
-            />
-          )}
+          <Select
+            value={repFilter}
+            onChange={(e) => setRepFilter(e.target.value)}
+            containerClassName="mb-0"
+            options={[
+              { value: 'all', label: 'All Sales Members' },
+              ...salesMembers.map((m) => ({ value: m.memberId, label: m.name })),
+            ]}
+          />
 
           <Select
             value={sortBy}
@@ -240,7 +314,7 @@ export default function CustomersView() {
               header: 'Customer ID',
               width: '120px',
               render: (c) => (
-                <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand-primary)' }}>
+                <span className="table-id-tag">
                   {c.customerId}
                 </span>
               ),
@@ -250,23 +324,23 @@ export default function CustomersView() {
               header: 'Customer Name',
               render: (c) => (
                 <div>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.name}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{c.email}</div>
+                  <div className="table-cell-title">{c.name}</div>
+                  <div className="table-cell-subtitle">{c.email}</div>
                 </div>
               ),
             },
             {
               key: 'company',
               header: 'Company Name',
-              render: (c) => <span style={{ fontWeight: 500 }}>{c.company}</span>,
+              render: (c) => <span style={{ fontWeight: 600, color: '#1e293b' }}>{c.company}</span>,
             },
             {
               key: 'service',
               header: 'Service',
               render: (c) => (
                 <div>
-                  <div style={{ fontSize: '0.8125rem', color: 'var(--text-primary)' }}>{c.service}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{c.package}</div>
+                  <div className="table-cell-title" style={{ fontSize: '0.82rem' }}>{c.service}</div>
+                  <div className="table-cell-subtitle">{c.package}</div>
                 </div>
               ),
             },
@@ -274,7 +348,7 @@ export default function CustomersView() {
               key: 'salesMember',
               header: 'Sales Member',
               render: (c) => (
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
                   {c.salesMemberName}
                 </span>
               ),

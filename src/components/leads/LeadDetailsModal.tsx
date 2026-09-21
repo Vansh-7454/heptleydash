@@ -275,14 +275,16 @@ export default function LeadDetailsModal({
             </div>
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Button
-                variant="outline"
-                size="sm"
-                leftIcon={<Bot size={13} />}
-                onClick={handleOpenInAgent}
-              >
-                Chat with Agent
-              </Button>
+              {role === 'sales' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Bot size={13} />}
+                  onClick={handleOpenInAgent}
+                >
+                  Chat with Agent
+                </Button>
+              )}
 
               <Button
                 variant="primary"

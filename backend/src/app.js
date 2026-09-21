@@ -14,6 +14,9 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const websiteRoutes = require('./routes/websiteRoutes');
+const domainRoutes = require('./routes/domainRoutes');
+const salesQuestionRoutes = require('./routes/salesQuestionRoutes');
 
 const app = express();
 
@@ -46,6 +49,10 @@ app.get('/api/health', (req, res) => {
 // Mount Resource Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users/sales-members', salesMemberRoutes);
+app.use('/api/sales-members', salesMemberRoutes);
+app.use('/api/websites', websiteRoutes);
+app.use('/api/domains', domainRoutes);
+app.use('/api/sales-questions', salesQuestionRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/follow-ups', followUpRoutes);

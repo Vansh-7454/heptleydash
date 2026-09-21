@@ -15,6 +15,8 @@ const notificationController = {
           query.$or.push({ recipientSalesMemberId: req.user.salesMemberId });
         }
         query.$or.push({ recipientRole: 'sales' });
+      } else if (req.user.role === 'developer') {
+        query.$or.push({ recipientRole: 'developer' });
       }
 
       if (req.user.id) {
@@ -77,9 +79,13 @@ const notificationController = {
 
       if (req.user.role === 'admin') {
         query.$or.push({ recipientRole: 'admin' });
-      } else if (req.user.role === 'sales' && req.user.salesMemberId) {
-        query.$or.push({ recipientSalesMemberId: req.user.salesMemberId });
+      } else if (req.user.role === 'sales') {
+        if (req.user.salesMemberId) {
+          query.$or.push({ recipientSalesMemberId: req.user.salesMemberId });
+        }
         query.$or.push({ recipientRole: 'sales' });
+      } else if (req.user.role === 'developer') {
+        query.$or.push({ recipientRole: 'developer' });
       }
 
       await Notification.updateMany(query, { read: true });

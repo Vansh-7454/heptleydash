@@ -18,11 +18,14 @@ import {
   Layers,
   Activity as ActivityIcon,
   ChevronRight,
+  FileSpreadsheet,
 } from 'lucide-react';
+import { exportCustomersToExcel } from '@/utils/exportExcel';
 
 export default function SalesDashboard() {
   const {
     userProfile,
+    customers,
     myCustomers,
     myLeads,
     myFollowUps,
@@ -37,6 +40,27 @@ export default function SalesDashboard() {
   } = useDashboard();
 
   const [lookupQuery, setLookupQuery] = useState('');
+  const [customerScope, setCustomerScope] = useState<'mine' | 'all'>('mine');
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
+
+  const handleExportExcel = async () => {
+    setIsExportingExcel(true);
+    try {
+      const listToExport = customerScope === 'all' ? customers : myCustomers;
+      const fileDate = new Date().toISOString().split('T')[0];
+      const repName = (userProfile?.name || 'sales').replace(/\s+/g, '_');
+      const filename = customerScope === 'all'
+        ? `heptley_all_customers_${fileDate}.xlsx`
+        : `heptley_${repName}_assigned_customers_${fileDate}.xlsx`;
+      await exportCustomersToExcel(listToExport, 'sales', filename);
+    } catch (err) {
+      console.error('Failed to export Excel from Sales Dashboard:', err);
+    } finally {
+      setIsExportingExcel(false);
+    }
+  };
+
+  const displayedCustomers = (customerScope === 'mine' ? myCustomers : customers).slice(0, 8);
 
   // Rep-specific workflow metrics (pure customer, lead & task operations)
   const activeCustomerCount = myCustomers.filter(
@@ -152,9 +176,9 @@ export default function SalesDashboard() {
         style={{
           backgroundColor: '#ffffff',
           borderRadius: '18px',
-          border: '1.5px solid #9fd8ed',
+          border: '1px solid var(--border-default)',
           padding: '1.75rem 2rem',
-          boxShadow: 'var(--shadow-md)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
@@ -175,12 +199,12 @@ export default function SalesDashboard() {
                 width: '100%',
                 padding: '0.7rem 1.15rem',
                 borderRadius: '9999px',
-                border: '1.5px solid #9fd8ed',
+                border: '1px solid #cbd5e1',
                 backgroundColor: '#ffffff',
                 fontSize: '0.875rem',
                 outline: 'none',
                 color: 'var(--text-primary)',
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
                 transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)',
               }}
             />
@@ -191,14 +215,14 @@ export default function SalesDashboard() {
             className="btn-pill"
             style={{
               padding: '0.7rem 1.6rem',
-              backgroundColor: '#bde7f6',
-              color: '#021a29',
-              border: '1px solid #9fd8ed',
+              backgroundColor: '#dbeafe',
+              color: '#0369a1',
+              border: '1px solid #bfdbfe',
               borderRadius: '9999px',
               fontWeight: 800,
               fontSize: '0.875rem',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(159, 216, 237, 0.4)',
+              boxShadow: '0 1px 3px rgba(2, 132, 199, 0.15)',
               transition: 'all var(--transition-fast)',
             }}
             onClick={() => {
@@ -221,7 +245,7 @@ export default function SalesDashboard() {
               padding: '0.75rem 1rem',
               borderRadius: '12px',
               backgroundColor: '#f0f9fd',
-              border: '1.5px solid #9fd8ed',
+              border: '1px solid var(--border-default)',
             }}
           >
             {filteredLookupResults.length === 0 ? (
@@ -277,9 +301,9 @@ export default function SalesDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -293,12 +317,12 @@ export default function SalesDashboard() {
                   width: '44px',
                   height: '44px',
                   borderRadius: '12px',
-                  backgroundColor: '#e6f4fb',
+                  backgroundColor: '#dbeafe',
                   color: '#0284c7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid #9fd8ed',
+                  border: '1px solid #bfdbfe',
                   boxShadow: '0 2px 6px rgba(2, 132, 199, 0.08)',
                   flexShrink: 0,
                 }}
@@ -310,23 +334,23 @@ export default function SalesDashboard() {
                   My Customers
                 </h4>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginTop: '0.15rem' }}>
-                  Assigned Accounts
+                  Personal Assigned Accounts
                 </span>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
                 {myCustomers.length}
               </span>
-              <span style={{ fontSize: '0.82rem', color: '#065f46', backgroundColor: '#ecfdf5', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #a7f3d0' }}>
+              <span style={{ fontSize: '0.82rem', color: '#0284c7', backgroundColor: '#e0f2fe', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #bae6fd' }}>
                 {activeCustomerCount} active
               </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#f0f9fd', borderRadius: '12px', border: '1px solid #e0f2fe', fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
-            Portfolio: <strong style={{ color: '#0284c7', fontWeight: 800 }}>{activeCustomerCount} active · {Math.max(0, myCustomers.length - activeCustomerCount)} onboarding</strong>
+          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#f0f9fd', borderRadius: '12px', border: '1px solid #e0f2fe', fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+            My Portfolio: <strong style={{ color: '#0284c7', fontWeight: 800 }}>{activeCustomerCount} active · {Math.max(0, myCustomers.length - activeCustomerCount)} onboarding</strong>
           </div>
         </div>
 
@@ -335,9 +359,9 @@ export default function SalesDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -365,25 +389,25 @@ export default function SalesDashboard() {
               </div>
               <div>
                 <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                  Active Leads
+                  My Active Leads
                 </h4>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginTop: '0.15rem' }}>
-                  Pipeline Prospects
+                  Personal Pipeline Prospects
                 </span>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
                 {openLeadsCount}
               </span>
               <span style={{ fontSize: '0.82rem', color: '#6b21a8', backgroundColor: '#f3e8ff', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #e9d5ff' }}>
-                in pipeline
+                assigned to me
               </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#faf5ff', borderRadius: '12px', border: '1px solid #f3e8ff', fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
+          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#faf5ff', borderRadius: '12px', border: '1px solid #f3e8ff', fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>
             Pipeline status: <strong style={{ color: '#6b21a8', fontWeight: 800 }}>{myLeads.filter(l => l.status === 'Won').length} won · {openLeadsCount} active</strong>
           </div>
         </div>
@@ -393,9 +417,9 @@ export default function SalesDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -432,7 +456,7 @@ export default function SalesDashboard() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
                 {todayFollowUps.length}
               </span>
               <span style={{ fontSize: '0.82rem', color: '#92400e', backgroundColor: '#fffbeb', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #fde68a' }}>
@@ -441,7 +465,7 @@ export default function SalesDashboard() {
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#fffdf5', borderRadius: '12px', border: '1px solid #fef3c7', fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
+          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#fffdf5', borderRadius: '12px', border: '1px solid #fef3c7', fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>
             Follow-ups: <strong style={{ color: '#b45309', fontWeight: 800 }}>{myFollowUps.length} total scheduled</strong>
           </div>
         </div>
@@ -451,9 +475,9 @@ export default function SalesDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -490,7 +514,7 @@ export default function SalesDashboard() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
                 {overdueFollowUps.length}
               </span>
               <span style={{ fontSize: '0.82rem', color: overdueFollowUps.length > 0 ? '#991b1b' : '#065f46', backgroundColor: overdueFollowUps.length > 0 ? '#fee2e2' : '#ecfdf5', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: `1px solid ${overdueFollowUps.length > 0 ? '#fecaca' : '#a7f3d0'}` }}>
@@ -499,7 +523,7 @@ export default function SalesDashboard() {
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: overdueFollowUps.length > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: '12px', border: `1px solid ${overdueFollowUps.length > 0 ? '#fee2e2' : '#dcfce7'}`, fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
+          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: overdueFollowUps.length > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: '12px', border: `1px solid ${overdueFollowUps.length > 0 ? '#fee2e2' : '#dcfce7'}`, fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>
             Status: <strong style={{ color: overdueFollowUps.length > 0 ? '#dc2626' : '#047857', fontWeight: 800 }}>{overdueFollowUps.length > 0 ? `${overdueFollowUps.length} tasks require follow-up` : 'All tasks up to date'}</strong>
           </div>
         </div>
@@ -507,35 +531,91 @@ export default function SalesDashboard() {
 
       {/* 5. Recent Customers & Scheduled Follow-ups Tables */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(520px, 1fr))', gap: '1.75rem' }}>
-        {/* Table 1: Recent Customers */}
+        {/* Table 1: Customers Table */}
         <div
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.5rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                My Assigned Customers
+                {customerScope === 'mine' ? 'My Assigned Customers' : 'All Customers Directory'}
               </h3>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                Active client accounts for {userProfile.name}
+                {customerScope === 'mine'
+                  ? `Personal client accounts assigned to ${userProfile.name} (${myCustomers.length})`
+                  : `All registered client accounts (${customers.length})`}
               </span>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="btn-pill"
-              rightIcon={<ArrowRight size={14} />}
-              onClick={() => setActiveSalesTab('my-customers')}
-            >
-              View All ({myCustomers.length})
-            </Button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div style={{ display: 'inline-flex', gap: '0.25rem', backgroundColor: '#f1f5f9', padding: '0.2rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <button
+                  onClick={() => setCustomerScope('mine')}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '6px',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    backgroundColor: customerScope === 'mine' ? '#ffffff' : 'transparent',
+                    color: customerScope === 'mine' ? '#0284c7' : '#64748b',
+                    boxShadow: customerScope === 'mine' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  My Assigned ({myCustomers.length})
+                </button>
+                <button
+                  onClick={() => setCustomerScope('all')}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '6px',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    backgroundColor: customerScope === 'all' ? '#ffffff' : 'transparent',
+                    color: customerScope === 'all' ? '#0284c7' : '#64748b',
+                    boxShadow: customerScope === 'all' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  All Directory ({customers.length})
+                </button>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<FileSpreadsheet size={15} style={{ color: '#059669' }} />}
+                onClick={handleExportExcel}
+                isLoading={isExportingExcel}
+                style={{
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  borderColor: '#34d399',
+                  backgroundColor: '#ecfdf5',
+                  color: '#065f46',
+                }}
+              >
+                {customerScope === 'mine' ? 'Export My Customers (.xlsx)' : 'Export Directory (.xlsx)'}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="btn-pill"
+                rightIcon={<ArrowRight size={14} />}
+                onClick={() => setActiveSalesTab('my-customers')}
+              >
+                View Directory
+              </Button>
+            </div>
           </div>
 
           <div className="table-wrapper" style={{ border: '1px solid rgba(126, 205, 232, 0.35)', backgroundColor: '#ffffff' }}>
@@ -550,89 +630,7 @@ export default function SalesDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {myCustomers.map((c, idx) => (
-                  <tr key={`cust-${c.id || c.customerId || idx}-${idx}`}>
-                    <td style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.8rem', color: '#0284c7', whiteSpace: 'nowrap' }}>
-                      {c.customerId}
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>{c.company}</div>
-                    </td>
-                    <td style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{c.service}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>
-                      <span
-                        className={`status-pill ${
-                          c.status === 'Active'
-                            ? 'status-pill-green'
-                            : c.status === 'Onboarding'
-                            ? 'status-pill-blue'
-                            : 'status-pill-red'
-                        }`}
-                      >
-                        {c.status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <button
-                        onClick={() => setDetailedCustomerView(c)}
-                        className="btn btn-ghost btn-sm btn-icon-only"
-                        title="View customer details"
-                      >
-                        <Eye size={15} style={{ color: '#0284c7' }} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Table 1: My Assigned Customers */}
-        <div
-          style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '18px',
-            border: '1.5px solid #9fd8ed',
-            padding: '1.5rem',
-            boxShadow: 'var(--shadow-md)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-            <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                My Assigned Customers
-              </h3>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                Active client accounts for {userProfile.name}
-              </span>
-            </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="btn-pill"
-              rightIcon={<ArrowRight size={14} />}
-              onClick={() => setActiveSalesTab('my-customers')}
-            >
-              View All ({myCustomers.length})
-            </Button>
-          </div>
-
-          <div className="table-wrapper" style={{ border: '1px solid rgba(159, 216, 237, 0.4)', backgroundColor: '#ffffff' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '115px', whiteSpace: 'nowrap' }}>Customer ID</th>
-                  <th>Customer & Company</th>
-                  <th style={{ minWidth: '130px' }}>Service</th>
-                  <th style={{ width: '100px', whiteSpace: 'nowrap' }}>Status</th>
-                  <th style={{ width: '75px', textAlign: 'right', whiteSpace: 'nowrap' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {myCustomers.map((c, idx) => (
+                {displayedCustomers.map((c, idx) => (
                   <tr key={`cust-${c.id || c.customerId || idx}-${idx}`}>
                     <td style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.8rem', color: '#0284c7', whiteSpace: 'nowrap' }}>
                       {c.customerId}
@@ -676,9 +674,9 @@ export default function SalesDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.5rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>

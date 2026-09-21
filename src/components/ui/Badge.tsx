@@ -4,6 +4,7 @@ import React from 'react';
 
 export type BadgeVariant =
   | 'active'
+  | 'success'
   | 'pending'
   | 'warning'
   | 'danger'
@@ -25,7 +26,7 @@ export const Badge: React.FC<BadgeProps> = ({
   withDot = true,
   className = '',
 }) => {
-  const variantClass = `badge-${variant === 'completed' ? 'active' : variant}`;
+  const variantClass = `badge-${variant === 'completed' || variant === 'success' ? 'active' : variant}`;
 
   return (
     <span className={`badge ${variantClass} ${className}`.trim()}>

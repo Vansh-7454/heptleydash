@@ -103,14 +103,16 @@ export default function FollowUpsView() {
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          leftIcon={<Plus size={15} />}
-          onClick={() => setIsAddFollowUpModalOpen(true)}
-        >
-          Create Follow-up
-        </Button>
+        {role !== 'admin' && (
+          <Button
+            variant="primary"
+            size="sm"
+            leftIcon={<Plus size={15} />}
+            onClick={() => setIsAddFollowUpModalOpen(true)}
+          >
+            Create Follow-up
+          </Button>
+        )}
       </div>
 
       {/* Distinction Banner: Follow-up vs Activity */}

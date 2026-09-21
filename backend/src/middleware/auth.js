@@ -34,6 +34,9 @@ const requireAuth = async (req, res, next) => {
     if (!user && decoded.salesMemberId) {
       user = await User.findOne({ salesMemberId: decoded.salesMemberId });
     }
+    if (!user && decoded.developerId) {
+      user = await User.findOne({ developerId: decoded.developerId });
+    }
     if (!user && decoded.role === 'admin') {
       user = await User.findOne({ role: 'admin' });
     }
@@ -57,6 +60,7 @@ const requireAuth = async (req, res, next) => {
       userId: user._id.toString(),
       role: user.role,
       salesMemberId: user.salesMemberId,
+      developerId: user.developerId,
       email: user.email,
       name: user.name,
     };

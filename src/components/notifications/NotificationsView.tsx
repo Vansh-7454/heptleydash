@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Target,
   ArrowRight,
+  Globe,
 } from 'lucide-react';
 
 export default function NotificationsView() {
@@ -21,6 +22,7 @@ export default function NotificationsView() {
     markAllNotificationsRead,
     setActiveAdminTab,
     setActiveSalesTab,
+    setActiveDeveloperTab,
     role,
   } = useDashboard();
 
@@ -35,15 +37,28 @@ export default function NotificationsView() {
   });
 
   const handleNotificationClick = async (notifId: string, targetTab?: string) => {
+    // If the user was highlighting/selecting text (e.g. to copy), don't trigger navigation
+    if (typeof window !== 'undefined') {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) {
+        return;
+      }
+    }
+
     await markNotificationRead(notifId);
     if (targetTab) {
       if (role === 'admin') setActiveAdminTab(targetTab as any);
+      else if (role === 'developer') setActiveDeveloperTab(targetTab as any);
       else setActiveSalesTab(targetTab as any);
     }
   };
 
   const getIconForType = (type: string) => {
     switch (type) {
+      case 'DOMAIN_EXPIRY_30_DAYS':
+      case 'domain_expiring_soon':
+      case 'domain_expired':
+        return <Globe size={16} style={{ color: '#d97706' }} />;
       case 'customer_assigned':
         return <UserPlus size={16} style={{ color: 'var(--brand-accent)' }} />;
       case 'followup_due':

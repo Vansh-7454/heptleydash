@@ -204,17 +204,19 @@ export default function CustomerAISalesIntelligence({ customer }: CustomerAISale
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Bot size={14} />}
-            rightIcon={<ExternalLink size={12} />}
-            onClick={handleOpenInAgent}
-          >
-            Open in AI Sales Agent
-          </Button>
-        </div>
+        {role === 'sales' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Bot size={14} />}
+              rightIcon={<ExternalLink size={12} />}
+              onClick={handleOpenInAgent}
+            >
+              Open in AI Sales Agent
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Sub-tab Switcher */}

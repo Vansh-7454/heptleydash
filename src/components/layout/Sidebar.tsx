@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { AdminTab, SalesTab } from '@/types';
+import { AdminTab, SalesTab, DeveloperTab } from '@/types';
 import {
   LayoutDashboard,
   Users,
@@ -11,8 +11,6 @@ import {
   Clock,
   Activity,
   CreditCard,
-  BarChart3,
-  Bot,
   Settings,
   User,
   LogOut,
@@ -20,7 +18,11 @@ import {
   ChevronRight,
   Shield,
   Bell,
-  Sparkles,
+  Code2,
+  Globe,
+  HelpCircle,
+  FileText,
+  Bot,
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -31,6 +33,8 @@ export default function Sidebar() {
     setActiveAdminTab,
     activeSalesTab,
     setActiveSalesTab,
+    activeDeveloperTab,
+    setActiveDeveloperTab,
     isSidebarCollapsed,
     toggleSidebar,
     isMobileNavOpen,
@@ -39,10 +43,12 @@ export default function Sidebar() {
     logout,
   } = useDashboard();
 
-  const handleNavClick = (tab: AdminTab | SalesTab) => {
+  const handleNavClick = (tab: AdminTab | SalesTab | DeveloperTab) => {
     setDetailedCustomerView(null);
     if (role === 'admin') {
       setActiveAdminTab(tab as AdminTab);
+    } else if (role === 'developer') {
+      setActiveDeveloperTab(tab as DeveloperTab);
     } else {
       setActiveSalesTab(tab as SalesTab);
     }
@@ -54,28 +60,35 @@ export default function Sidebar() {
     { id: 'sales-members', label: 'Sales Members', icon: <Users size={18} /> },
     { id: 'customers', label: 'Customers', icon: <Briefcase size={18} /> },
     { id: 'leads', label: 'Leads', icon: <Target size={18} /> },
-    { id: 'follow-ups', label: 'Follow-ups', icon: <Clock size={18} /> },
-    { id: 'activities', label: 'Activities', icon: <Activity size={18} /> },
-    { id: 'payments', label: 'Payments', icon: <CreditCard size={18} /> },
-    { id: 'reports', label: 'Reports', icon: <BarChart3 size={18} /> },
-    { id: 'ai-assistant', label: 'AI Assistant', icon: <Bot size={18} /> },
+    { id: 'websites-domains', label: 'Websites & Domains', icon: <Globe size={18} /> },
+    { id: 'sales-questions', label: 'Sales Questions', icon: <HelpCircle size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
     { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
   ];
 
   const salesNavItems: { id: SalesTab; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { id: 'my-leads', label: 'My Leads', icon: <Target size={18} /> },
-    { id: 'my-customers', label: 'My Customers', icon: <Briefcase size={18} /> },
-    { id: 'follow-ups', label: 'Follow-ups', icon: <Clock size={18} /> },
-    { id: 'activities', label: 'Activities', icon: <Activity size={18} /> },
+    { id: 'my-customers', label: 'Customers', icon: <Briefcase size={18} /> },
+    { id: 'my-leads', label: 'Leads', icon: <Target size={18} /> },
+    { id: 'sales-questions', label: 'Sales Questions', icon: <HelpCircle size={18} /> },
+    { id: 'websites-domains', label: 'Websites & Domains', icon: <Globe size={18} /> },
     { id: 'ai-assistant', label: 'AI Assistant', icon: <Bot size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
-    { id: 'profile', label: 'Profile', icon: <User size={18} /> },
+    { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
   ];
 
-  const currentItems = role === 'admin' ? adminNavItems : salesNavItems;
-  const currentActiveTab = role === 'admin' ? activeAdminTab : activeSalesTab;
+  const developerNavItems: { id: DeveloperTab; label: string; icon: React.ReactNode }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+    { id: 'websites-domains', label: 'Websites & Domains', icon: <Globe size={18} /> },
+    { id: 'sales-questions', label: 'Sales Questions', icon: <HelpCircle size={18} /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
+    { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
+  ];
+
+  const currentItems =
+    role === 'admin' ? adminNavItems : role === 'developer' ? developerNavItems : salesNavItems;
+  const currentActiveTab =
+    role === 'admin' ? activeAdminTab : role === 'developer' ? activeDeveloperTab : activeSalesTab;
 
   return (
     <>
@@ -131,13 +144,13 @@ export default function Sidebar() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: '#bde7f6',
+                    backgroundColor: '#dbeafe',
                     color: '#0284c7',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    border: '1px solid #9fd8ed',
-                    boxShadow: '0 2px 8px rgba(159, 216, 237, 0.4)',
+                    border: '1px solid #bfdbfe',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.15)',
                   }}
                 >
                   <Shield size={20} />
@@ -177,13 +190,13 @@ export default function Sidebar() {
                   width: '36px',
                   height: '36px',
                   borderRadius: '10px',
-                  backgroundColor: '#bde7f6',
+                  backgroundColor: '#dbeafe',
                   color: '#0284c7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid #9fd8ed',
-                  boxShadow: '0 2px 8px rgba(159, 216, 237, 0.4)',
+                  border: '1px solid #bfdbfe',
+                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.15)',
                 }}
               >
                 <Shield size={20} />
@@ -230,7 +243,7 @@ export default function Sidebar() {
                 fontWeight: 800,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: '#073857',
+                color: 'var(--text-muted)',
                 flexShrink: 0,
               }}
             >
@@ -256,13 +269,13 @@ export default function Sidebar() {
                     borderRadius: '9999px',
                     fontSize: '0.875rem',
                     fontWeight: isActive ? 800 : 600,
-                    color: '#021a29',
-                    backgroundColor: isActive ? '#bde7f6' : 'transparent',
-                    border: isActive ? '1px solid #9fd8ed' : '1px solid transparent',
+                    color: isActive ? '#0369a1' : 'var(--text-primary)',
+                    backgroundColor: isActive ? '#e0f2fe' : 'transparent',
+                    border: isActive ? '1px solid #bae6fd' : '1px solid transparent',
                     cursor: 'pointer',
                     transition: 'all var(--transition-fast)',
                     textAlign: 'left',
-                    boxShadow: isActive ? '0 2px 10px rgba(159, 216, 237, 0.4)' : 'none',
+                    boxShadow: isActive ? '0 1px 4px rgba(2, 132, 199, 0.15)' : 'none',
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
@@ -273,13 +286,13 @@ export default function Sidebar() {
                   onMouseLeave={(e) => {
                     if (!isActive) {
                       e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = '#021a29';
+                      e.currentTarget.style.color = 'var(--text-primary)';
                     }
                   }}
                 >
                   <span
                     style={{
-                      color: isActive ? '#ffffff' : '#073857',
+                      color: isActive ? '#0369a1' : 'var(--text-secondary)',
                       display: 'flex',
                       alignItems: 'center',
                       flexShrink: 0,
@@ -319,15 +332,15 @@ export default function Sidebar() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '50%',
-                    backgroundColor: '#bde7f6',
-                    color: '#0284c7',
+                    backgroundColor: 'var(--brand-accent-subtle)',
+                    color: 'var(--brand-accent-text)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.82rem',
                     fontWeight: 800,
                     flexShrink: 0,
-                    boxShadow: '0 2px 6px rgba(159, 216, 237, 0.4)',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.15)',
                   }}
                 >
                   {role === 'admin' ? 'AD' : userProfile.memberId ? userProfile.memberId.replace('-', '') : 'SM'}
@@ -337,7 +350,7 @@ export default function Sidebar() {
                     style={{
                       fontSize: '0.85rem',
                       fontWeight: 800,
-                      color: '#021a29',
+                      color: 'var(--text-primary)',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -349,7 +362,7 @@ export default function Sidebar() {
                   <p
                     style={{
                       fontSize: '0.72rem',
-                      color: '#1e3a52',
+                      color: 'var(--text-muted)',
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',

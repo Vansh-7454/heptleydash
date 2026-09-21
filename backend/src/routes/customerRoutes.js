@@ -8,5 +8,6 @@ router.get('/', requireAuth, customerController.getAll);
 router.post('/', requireAuth, customerController.create);
 router.get('/:id', requireAuth, customerController.getById);
 router.patch('/:id', requireAuth, customerController.update);
+router.delete('/:id', requireAuth, customerController.delete);
 
 module.exports = router;

@@ -21,54 +21,33 @@ import {
   Shield,
   Search,
   ChevronRight,
-  DollarSign,
+  Globe,
+  Server,
+  Code,
+  HelpCircle,
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const {
     totalSalesMembers,
-    totalCustomers,
-    activeCustomers,
-    openLeadsCount,
-    pendingFollowUpsCount,
     customers,
     salesMembers,
+    domains,
     leads,
-    todayFollowUps,
-    overdueFollowUps,
-    upcomingFollowUps,
-    activities,
     stats,
     setActiveAdminTab,
     setDetailedCustomerView,
-    setIsAddCustomerModalOpen,
     setIsAddMemberModalOpen,
-    setIsAddLeadModalOpen,
-    setIsAddFollowUpModalOpen,
-    markFollowUpComplete,
   } = useDashboard();
 
   const [lookupQuery, setLookupQuery] = useState('');
-  const [followUpTab, setFollowUpTab] = useState<'overdue' | 'today' | 'upcoming'>('today');
 
   const recentCustomers = customers.slice(0, 5);
-  const recentActivities = activities.slice(0, 5);
 
-  // Live real-time financial metrics from MongoDB
-  const realTotalRevenue = stats?.totalRevenue ?? customers.reduce((acc, c) => acc + (c.finalAmount || 0), 0);
-  const realCollectedRevenue = stats?.totalCollected ?? customers.reduce((acc, c) => acc + (c.amountPaid || 0), 0);
-  const realOutstanding = stats?.totalOutstanding ?? Math.max(0, realTotalRevenue - realCollectedRevenue);
-  const realRealizationRate = realTotalRevenue > 0 ? Math.round((realCollectedRevenue / realTotalRevenue) * 100) : 0;
-
-  const totalContractValue = realTotalRevenue;
-  const totalReceivedValue = realCollectedRevenue;
-
-  const activeFollowUpList =
-    followUpTab === 'overdue'
-      ? overdueFollowUps
-      : followUpTab === 'today'
-      ? todayFollowUps
-      : upcomingFollowUps;
+  // Operational metrics calculated strictly from MongoDB data & live context
+  const totalSales = stats?.totalSalesMembers ?? stats?.operationalStats?.totalSalesMembers ?? totalSalesMembers;
+  const activeDoms = stats?.activeDomains ?? stats?.operationalStats?.activeDomains ?? domains.filter((d) => d.status === 'ACTIVE').length;
+  const expiringDoms = stats?.expiringDomains ?? stats?.operationalStats?.expiringDomains ?? domains.filter((d) => d.status === 'EXPIRING_SOON').length;
 
   // Filtered entity search
   const filteredEntities = lookupQuery.trim()
@@ -143,7 +122,7 @@ export default function AdminDashboard() {
             Business & Team Dashboard
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: '0.35rem 0 0' }}>
-            Monitor overall sales team performance, track customers, active leads, and follow-ups.
+            Operational command center: sales team, customers, websites, domains, and inquiries.
           </p>
         </div>
 
@@ -175,16 +154,6 @@ export default function AdminDashboard() {
           >
             + Add Sales Member
           </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="btn-pill"
-            leftIcon={<Briefcase size={14} />}
-            onClick={() => setIsAddCustomerModalOpen(true)}
-          >
-            + Add Customer
-          </Button>
         </div>
       </div>
 
@@ -193,9 +162,9 @@ export default function AdminDashboard() {
         style={{
           backgroundColor: '#ffffff',
           borderRadius: '18px',
-          border: '1.5px solid #9fd8ed',
+          border: '1px solid var(--border-default)',
           padding: '1.75rem 2rem',
-          boxShadow: 'var(--shadow-md)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
@@ -209,19 +178,19 @@ export default function AdminDashboard() {
           <div style={{ flex: 1, minWidth: '280px', position: 'relative' }}>
             <input
               type="text"
-              placeholder="Search by customer name, company, or team member..."
+              placeholder="Search by customer, team member, or lead..."
               value={lookupQuery}
               onChange={(e) => setLookupQuery(e.target.value)}
               style={{
                 width: '100%',
                 padding: '0.7rem 1.15rem',
                 borderRadius: '9999px',
-                border: '1.5px solid #9fd8ed',
+                border: '1px solid #cbd5e1',
                 backgroundColor: '#ffffff',
                 fontSize: '0.875rem',
                 outline: 'none',
                 color: 'var(--text-primary)',
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
                 transition: 'border-color var(--transition-fast)',
               }}
             />
@@ -232,14 +201,14 @@ export default function AdminDashboard() {
             className="btn-pill"
             style={{
               padding: '0.7rem 1.6rem',
-              backgroundColor: '#bde7f6',
-              color: '#021a29',
-              border: '1px solid #9fd8ed',
+              backgroundColor: '#dbeafe',
+              color: '#0369a1',
+              border: '1px solid #bfdbfe',
               borderRadius: '9999px',
               fontWeight: 800,
               fontSize: '0.875rem',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(159, 216, 237, 0.4)',
+              boxShadow: '0 1px 3px rgba(2, 132, 199, 0.15)',
               transition: 'all var(--transition-fast)',
             }}
             onClick={() => {
@@ -264,7 +233,7 @@ export default function AdminDashboard() {
               padding: '0.75rem 1rem',
               borderRadius: '12px',
               backgroundColor: '#f0f9fd',
-              border: '1.5px solid #9fd8ed',
+              border: '1px solid var(--border-default)',
             }}
           >
             {filteredEntities.length === 0 ? (
@@ -311,327 +280,191 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* 3. Real-Time Revenue Realization & Cash Collection (Live from MongoDB) */}
-      <div
-        style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '18px',
-          border: '1.5px solid #9fd8ed',
-          padding: '1.5rem 2rem',
-          boxShadow: 'var(--shadow-md)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            marginBottom: '1.25rem',
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                color: '#0284c7',
-                marginBottom: '0.2rem',
-              }}
-            >
-              <DollarSign size={14} />
-              <span>Real-Time Revenue & Financial Ledger</span>
-            </div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Cash Realization & Outstanding Receivables
-            </h3>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span
-              style={{
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                color: '#0284c7',
-                backgroundColor: '#e6f4fb',
-                padding: '0.35rem 0.85rem',
-                borderRadius: '9999px',
-                border: '1px solid #9fd8ed',
-              }}
-            >
-              {realRealizationRate}% Realized
-            </span>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-          <div style={{ padding: '1.25rem 1.5rem', backgroundColor: '#f0f9fd', borderRadius: '14px', border: '1.5px solid #9fd8ed', boxShadow: '0 2px 8px rgba(2, 132, 199, 0.08)' }}>
-            <span style={{ fontSize: '0.8125rem', color: '#073857', fontWeight: 800 }}>Total Contracted Revenue</span>
-            <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0284c7', marginTop: '0.35rem', letterSpacing: '-0.02em' }}>
-              ₹{realTotalRevenue.toLocaleString('en-IN')}
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#1e3a52', fontWeight: 600, display: 'block', marginTop: '0.25rem' }}>Across all active & delivered accounts</span>
-          </div>
-
-          <div style={{ padding: '1.25rem 1.5rem', backgroundColor: '#ecfdf5', borderRadius: '14px', border: '1.5px solid #a7f3d0', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.08)' }}>
-            <span style={{ fontSize: '0.8125rem', color: '#047857', fontWeight: 800 }}>Collected Cash (Realized)</span>
-            <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#065f46', marginTop: '0.35rem', letterSpacing: '-0.02em' }}>
-              ₹{realCollectedRevenue.toLocaleString('en-IN')}
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 600, display: 'block', marginTop: '0.25rem' }}>Verified payments in MongoDB</span>
-          </div>
-
-          <div style={{ padding: '1.25rem 1.5rem', backgroundColor: '#fffbeb', borderRadius: '14px', border: '1.5px solid #fde68a', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.08)' }}>
-            <span style={{ fontSize: '0.8125rem', color: '#b45309', fontWeight: 800 }}>Outstanding Balance</span>
-            <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#92400e', marginTop: '0.35rem', letterSpacing: '-0.02em' }}>
-              ₹{realOutstanding.toLocaleString('en-IN')}
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 600, display: 'block', marginTop: '0.25rem' }}>Remaining contract balance</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. 4 Metric Cards (Lightened Sky-Cyan Cards + White Combination) */}
+      {/* 3. 8 Operational CRM Cards (Real Database Backed) */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '1.5rem',
+          gap: '1.25rem',
         }}
       >
-        {/* Card 1: Total Customers */}
+        {/* Card 1: Total Sales Members */}
         <div
+          onClick={() => setActiveAdminTab('sales-members')}
           style={{
             backgroundColor: '#ffffff',
-            borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
-            padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            borderRadius: '18px',
+            border: '1px solid var(--border-default)',
+            padding: '1.35rem',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            cursor: 'pointer',
             transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '12px',
-                  backgroundColor: '#e6f4fb',
-                  color: '#0284c7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid #9fd8ed',
-                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.08)',
-                  flexShrink: 0,
-                }}
-              >
-                <Briefcase size={20} />
-              </div>
-              <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                  Total Customers
-                </h4>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginTop: '0.15rem' }}>
-                  Client Accounts
-                </span>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                {totalCustomers}
-              </span>
-              <span style={{ fontSize: '0.82rem', color: '#065f46', backgroundColor: '#ecfdf5', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #a7f3d0' }}>
-                {activeCustomers} active
-              </span>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#f0f9fd', borderRadius: '12px', border: '1px solid #e0f2fe', fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
-            Bookings: <strong style={{ color: '#0284c7', fontWeight: 800 }}>₹{totalContractValue.toLocaleString('en-IN')}</strong>
-          </div>
-        </div>
-
-        {/* Card 2: Sales Team */}
-        <div
-          style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
-            padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1rem' }}>
-              <div
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '12px',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
                   backgroundColor: '#f5f3ff',
                   color: '#7e22ce',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: '1px solid #ddd6fe',
-                  boxShadow: '0 2px 6px rgba(126, 34, 206, 0.08)',
                   flexShrink: 0,
                 }}
               >
-                <Users size={20} />
+                <Users size={19} />
               </div>
               <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                  Sales Team
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                  Total Sales Members
                 </h4>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginTop: '0.15rem' }}>
-                  Active Reps
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  Sales Team Reps
                 </span>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                {totalSalesMembers}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', marginTop: '0.4rem' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {totalSales}
               </span>
-              <span style={{ fontSize: '0.82rem', color: '#6b21a8', backgroundColor: '#f3e8ff', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #e9d5ff' }}>
-                members
+              <span style={{ fontSize: '0.78rem', color: '#6b21a8', backgroundColor: '#f3e8ff', padding: '0.2rem 0.65rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #e9d5ff' }}>
+                team members
               </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#faf5ff', borderRadius: '12px', border: '1px solid #f3e8ff', fontSize: '0.82rem', color: '#021a29', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Team: <strong style={{ color: '#6b21a8', fontWeight: 800 }}>{salesMembers.map(m => m.name).join(', ')}</strong>
+          <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', color: '#0284c7', fontWeight: 700 }}>
+            <span>Manage Team</span>
+            <ChevronRight size={14} />
           </div>
         </div>
 
-        {/* Card 3: Active Leads */}
+        {/* Card 2: Active Domains */}
         <div
+          onClick={() => setActiveAdminTab('websites-domains')}
           style={{
             backgroundColor: '#ffffff',
-            borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
-            padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            borderRadius: '18px',
+            border: '1px solid var(--border-default)',
+            padding: '1.35rem',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            cursor: 'pointer',
             transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '12px',
-                  backgroundColor: '#ecfdf5',
-                  color: '#047857',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#334155',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '1px solid #a7f3d0',
-                  boxShadow: '0 2px 6px rgba(4, 120, 87, 0.08)',
+                  border: '1px solid #cbd5e1',
                   flexShrink: 0,
                 }}
               >
-                <Target size={20} />
+                <Server size={19} />
               </div>
               <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                  Active Leads
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                  Active Domains
                 </h4>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginTop: '0.15rem' }}>
-                  Prospect Pipeline
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  DNS & Domain Assets
                 </span>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                {openLeadsCount}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', marginTop: '0.4rem' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {activeDoms}
               </span>
-              <span style={{ fontSize: '0.82rem', color: '#065f46', backgroundColor: '#ecfdf5', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: '1px solid #a7f3d0' }}>
-                open leads
+              <span style={{ fontSize: '0.78rem', color: '#334155', backgroundColor: '#f1f5f9', padding: '0.2rem 0.65rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
+                of {domains.length} total
               </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#f0fdf4', borderRadius: '12px', border: '1px solid #dcfce7', fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
-            Won deals: <strong style={{ color: '#047857', fontWeight: 800 }}>{leads.filter(l => l.status === 'Won').length}</strong>
+          <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', color: '#0284c7', fontWeight: 700 }}>
+            <span>Manage Domains</span>
+            <ChevronRight size={14} />
           </div>
         </div>
 
-        {/* Card 4: Pending Follow-ups */}
+        {/* Card 8: Domains Expiring Soon */}
         <div
+          onClick={() => setActiveAdminTab('websites-domains')}
           style={{
             backgroundColor: '#ffffff',
-            borderRadius: '20px',
-            border: '1.5px solid #9fd8ed',
-            padding: '1.65rem',
-            boxShadow: 'var(--shadow-md)',
+            borderRadius: '18px',
+            border: expiringDoms > 0 ? '1.5px solid #fca5a5' : '1px solid var(--border-default)',
+            padding: '1.35rem',
+            boxShadow: 'var(--shadow-sm)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            cursor: 'pointer',
             transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '12px',
-                  backgroundColor: '#fffbeb',
-                  color: overdueFollowUps.length > 0 ? '#dc2626' : '#b45309',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  backgroundColor: expiringDoms > 0 ? '#fef2f2' : '#f0f9ff',
+                  color: expiringDoms > 0 ? '#dc2626' : '#0284c7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: `1px solid ${overdueFollowUps.length > 0 ? '#fecaca' : '#fde68a'}`,
-                  boxShadow: '0 2px 6px rgba(180, 83, 9, 0.08)',
+                  border: `1px solid ${expiringDoms > 0 ? '#fecaca' : '#bae6fd'}`,
                   flexShrink: 0,
                 }}
               >
-                <Clock size={20} />
+                <AlertTriangle size={19} />
               </div>
               <div>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
-                  Follow-ups
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                  Expiring Soon
                 </h4>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginTop: '0.15rem' }}>
-                  Scheduled Tasks
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  Domains &le; 30 Days
                 </span>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#021a29', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                {pendingFollowUpsCount}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', marginTop: '0.4rem' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 900, color: expiringDoms > 0 ? '#dc2626' : 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {expiringDoms}
               </span>
-              <span style={{ fontSize: '0.82rem', color: overdueFollowUps.length > 0 ? '#991b1b' : '#92400e', backgroundColor: overdueFollowUps.length > 0 ? '#fee2e2' : '#fffbeb', padding: '0.3rem 0.85rem', borderRadius: '9999px', fontWeight: 800, border: `1px solid ${overdueFollowUps.length > 0 ? '#fecaca' : '#fde68a'}` }}>
-                {overdueFollowUps.length > 0 ? `${overdueFollowUps.length} overdue` : 'on schedule'}
+              <span style={{ fontSize: '0.78rem', color: expiringDoms > 0 ? '#991b1b' : '#0284c7', backgroundColor: expiringDoms > 0 ? '#fee2e2' : '#e0f2fe', padding: '0.2rem 0.65rem', borderRadius: '9999px', fontWeight: 700, border: `1px solid ${expiringDoms > 0 ? '#fecaca' : '#bae6fd'}` }}>
+                {expiringDoms > 0 ? 'action needed' : 'all healthy'}
               </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.25rem', padding: '0.65rem 0.95rem', backgroundColor: '#fffdf5', borderRadius: '12px', border: '1px solid #fef3c7', fontSize: '0.82rem', color: '#021a29', fontWeight: 600 }}>
-            Scheduled today: <strong style={{ color: overdueFollowUps.length > 0 ? '#dc2626' : '#b45309', fontWeight: 800 }}>{todayFollowUps.length}</strong>
+          <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', color: '#0284c7', fontWeight: 700 }}>
+            <span>Review Expiries</span>
+            <ChevronRight size={14} />
           </div>
         </div>
       </div>
@@ -643,9 +476,9 @@ export default function AdminDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.5rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
@@ -669,7 +502,7 @@ export default function AdminDashboard() {
             </Button>
           </div>
 
-          <div className="table-wrapper" style={{ border: '1px solid rgba(159, 216, 237, 0.4)', backgroundColor: '#ffffff' }}>
+          <div className="table-wrapper" style={{ border: '1px solid var(--border-default)', backgroundColor: '#ffffff' }}>
             <table className="data-table">
               <thead>
                 <tr>
@@ -721,9 +554,9 @@ export default function AdminDashboard() {
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',
-            border: '1.5px solid #9fd8ed',
+            border: '1px solid var(--border-default)',
             padding: '1.5rem',
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
@@ -747,7 +580,7 @@ export default function AdminDashboard() {
             </Button>
           </div>
 
-          <div className="table-wrapper" style={{ border: '1px solid rgba(98, 193, 229, 0.35)', backgroundColor: '#ffffff' }}>
+          <div className="table-wrapper" style={{ border: '1px solid var(--border-default)', backgroundColor: '#ffffff' }}>
             <table className="data-table">
               <thead>
                 <tr>

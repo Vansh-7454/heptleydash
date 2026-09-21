@@ -21,12 +21,14 @@ export default function Header() {
     userProfile,
     activeAdminTab,
     activeSalesTab,
+    activeDeveloperTab,
     detailedCustomerView,
     setIsMobileNavOpen,
     unreadNotificationCount,
     logout,
     setActiveAdminTab,
     setActiveSalesTab,
+    setActiveDeveloperTab,
   } = useDashboard();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -52,12 +54,16 @@ export default function Header() {
       };
     }
 
-    const tab = role === 'admin' ? activeAdminTab : activeSalesTab;
+    const tab = role === 'admin' ? activeAdminTab : role === 'sales' ? activeSalesTab : activeDeveloperTab;
     switch (tab) {
       case 'dashboard':
-        return { breadcrumb: 'Workspace', title: 'Dashboard', company: null };
+        return { breadcrumb: 'Workspace', title: role === 'developer' ? 'Developer Dashboard' : 'Dashboard', company: null };
       case 'sales-members':
         return { breadcrumb: 'Management', title: 'Sales Members', company: null };
+      case 'websites-domains':
+        return { breadcrumb: 'Infrastructure', title: 'Websites & Domains', company: null };
+      case 'sales-questions':
+        return { breadcrumb: 'Collaboration', title: 'Sales Technical Questions', company: null };
       case 'customers':
       case 'my-customers':
         return { breadcrumb: 'Directory', title: role === 'sales' ? 'My Customers' : 'Customers', company: null };
@@ -152,12 +158,12 @@ export default function Header() {
         </div>
 
         {/* Navigation Breadcrumb */}
-        <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8rem', color: '#073857', fontWeight: 600 }}>
+        <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
           <span>heptley</span>
-          <span style={{ color: '#0284c7' }}>/</span>
+          <span style={{ color: 'var(--brand-primary)' }}>/</span>
           <span>{pageInfo.breadcrumb}</span>
-          <span style={{ color: '#0284c7' }}>/</span>
-          <strong style={{ color: '#021a29', fontWeight: 800 }}>{pageInfo.title}</strong>
+          <span style={{ color: 'var(--brand-primary)' }}>/</span>
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{pageInfo.title}</strong>
         </div>
       </div>
 
@@ -250,7 +256,13 @@ export default function Header() {
                 boxShadow: '0 0 8px var(--brand-accent-glow)',
               }}
             >
-              {role === 'admin' ? 'AD' : userProfile.memberId ? userProfile.memberId.replace('-', '') : 'SM'}
+              {role === 'admin'
+                ? 'AD'
+                : role === 'developer'
+                ? (userProfile.developerId ? userProfile.developerId.replace('-', '') : 'DEV')
+                : userProfile.memberId
+                ? userProfile.memberId.replace('-', '')
+                : 'SM'}
             </div>
 
             <div style={{ textAlign: 'left', lineHeight: 1.15 }} className="desktop-only">
@@ -269,14 +281,18 @@ export default function Header() {
                 style={{
                   fontSize: '0.7rem',
                   fontWeight: 800,
-                  color: role === 'admin' ? '#0284c7' : '#047857',
-                  backgroundColor: role === 'admin' ? '#f0f9fd' : '#ecfdf5',
+                  color: role === 'admin' ? '#0284c7' : role === 'developer' ? '#15803d' : '#047857',
+                  backgroundColor: role === 'admin' ? '#f0f9fd' : role === 'developer' ? '#f0fdf4' : '#ecfdf5',
                   padding: '0.15rem 0.55rem',
                   borderRadius: '9999px',
-                  border: `1px solid ${role === 'admin' ? '#9fd8ed' : '#a7f3d0'}`,
+                  border: `1px solid ${role === 'admin' ? '#bfdbfe' : role === 'developer' ? '#bbf7d0' : '#a7f3d0'}`,
                 }}
               >
-                {role === 'admin' ? 'Admin' : (userProfile.salesMemberId || userProfile.memberId || 'Rep')}
+                {role === 'admin'
+                  ? 'Admin'
+                  : role === 'developer'
+                  ? (userProfile.developerId || 'Developer')
+                  : (userProfile.salesMemberId || userProfile.memberId || 'Rep')}
               </span>
             </div>
 
@@ -315,7 +331,8 @@ export default function Header() {
                 onClick={() => {
                   setIsUserMenuOpen(false);
                   if (role === 'admin') setActiveAdminTab('profile');
-                  else setActiveSalesTab('profile');
+                  else if (role === 'sales') setActiveSalesTab('profile');
+                  else setActiveDeveloperTab('profile');
                 }}
                 style={{
                   display: 'flex',
@@ -342,7 +359,8 @@ export default function Header() {
                 onClick={() => {
                   setIsUserMenuOpen(false);
                   if (role === 'admin') setActiveAdminTab('settings');
-                  else setActiveSalesTab('settings');
+                  else if (role === 'sales') setActiveSalesTab('settings');
+                  else setActiveDeveloperTab('settings');
                 }}
                 style={{
                   display: 'flex',

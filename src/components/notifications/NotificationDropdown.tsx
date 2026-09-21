@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Bell, CheckCheck, Clock, UserPlus, CreditCard, RefreshCw, X } from 'lucide-react';
+import { Bell, CheckCheck, Clock, UserPlus, CreditCard, RefreshCw, X, Globe } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 export interface NotificationDropdownProps {
@@ -18,6 +18,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
     markAllNotificationsRead,
     setActiveAdminTab,
     setActiveSalesTab,
+    setActiveDeveloperTab,
     role,
   } = useDashboard();
 
@@ -38,10 +39,20 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
   if (!isOpen) return null;
 
   const handleNotificationClick = async (notifId: string, targetTab?: string) => {
+    // If the user was highlighting/selecting text, don't trigger navigation
+    if (typeof window !== 'undefined') {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim().length > 0) {
+        return;
+      }
+    }
+
     await markNotificationRead(notifId);
     if (targetTab) {
       if (role === 'admin') {
         setActiveAdminTab(targetTab as any);
+      } else if (role === 'developer') {
+        setActiveDeveloperTab(targetTab as any);
       } else {
         setActiveSalesTab(targetTab as any);
       }
@@ -51,6 +62,10 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
 
   const getIconForType = (type: string) => {
     switch (type) {
+      case 'DOMAIN_EXPIRY_30_DAYS':
+      case 'domain_expiring_soon':
+      case 'domain_expired':
+        return <Globe size={16} style={{ color: '#d97706' }} />;
       case 'customer_assigned':
         return <UserPlus size={16} style={{ color: 'var(--brand-accent)' }} />;
       case 'followup_due':

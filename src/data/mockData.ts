@@ -39,16 +39,6 @@ export const INITIAL_USER_PROFILES: Record<string, UserProfile> = {
     salesMemberId: 'SM-002',
     designation: 'Account Executive',
   },
-  sales03: {
-    id: 'usr_sales_3',
-    name: 'Sales Member 03',
-    email: 'sales03@heptley.com',
-    phone: '+91 98765 00003',
-    role: 'sales',
-    memberId: 'SM-003',
-    salesMemberId: 'SM-003',
-    designation: 'Business Development Specialist',
-  },
   // Fallback for legacy sales@heptley.com login
   sales: {
     id: 'usr_sales_1',
@@ -81,20 +71,9 @@ export const INITIAL_SALES_MEMBERS: SalesMember[] = [
     email: 'sales02@heptley.com',
     phone: '+91 98765 00002',
     status: 'Active',
-    customerCount: 2,
+    customerCount: 4,
     joiningDate: '2026-07-15',
     createdAt: '2026-07-15T10:00:00Z',
-  },
-  {
-    id: 'sm_3',
-    memberId: 'SM-003',
-    name: 'Sales Member 03',
-    email: 'sales03@heptley.com',
-    phone: '+91 98765 00003',
-    status: 'Active',
-    customerCount: 2,
-    joiningDate: '2026-08-01',
-    createdAt: '2026-08-01T10:00:00Z',
   },
 ];
 
@@ -273,7 +252,7 @@ export const INITIAL_CUSTOMERS: Customer[] = [
     createdAt: '2026-08-01T12:30:00Z',
   },
 
-  // SM-003 Customers (2 accounts)
+  // SM-002 Additional Customers (2 accounts)
   {
     id: 'cus_4',
     customerId: 'CUS-0004',
@@ -291,8 +270,8 @@ export const INITIAL_CUSTOMERS: Customer[] = [
     projectStatus: 'Review',
     customerStatus: 'Active',
     status: 'Active',
-    salesMemberId: 'SM-003',
-    salesMemberName: 'Sales Member 03',
+    salesMemberId: 'SM-002',
+    salesMemberName: 'Sales Member 02',
     leadSource: 'LinkedIn',
     dealValue: 420000,
     discount: 40000,
@@ -325,8 +304,8 @@ export const INITIAL_CUSTOMERS: Customer[] = [
     projectStatus: 'In Progress',
     customerStatus: 'Active',
     status: 'Active',
-    salesMemberId: 'SM-003',
-    salesMemberName: 'Sales Member 03',
+    salesMemberId: 'SM-002',
+    salesMemberName: 'Sales Member 02',
     leadSource: 'Direct Referral',
     dealValue: 290000,
     discount: 15000,
@@ -421,7 +400,7 @@ export const INITIAL_LEADS: Lead[] = [
     createdAt: '2026-09-14T11:45:00Z',
   },
 
-  // SM-003 Leads (2 leads)
+  // SM-002 Additional Leads (2 leads)
   {
     id: 'led_5',
     leadId: 'LED-0005',
@@ -432,8 +411,8 @@ export const INITIAL_LEADS: Lead[] = [
     interestedService: 'Enterprise Spatial Portal',
     source: 'Partner Network',
     status: 'Proposal',
-    assignedSalesMemberId: 'SM-003',
-    assignedSalesMemberName: 'Sales Member 03',
+    assignedSalesMemberId: 'SM-002',
+    assignedSalesMemberName: 'Sales Member 02',
     dealEstimate: 420000,
     lastContactDate: '2026-09-15',
     nextFollowUpDate: '2026-09-17 (Today)',
@@ -450,8 +429,8 @@ export const INITIAL_LEADS: Lead[] = [
     interestedService: 'ERP Integration',
     source: 'Website Inquiry',
     status: 'Qualified',
-    assignedSalesMemberId: 'SM-003',
-    assignedSalesMemberName: 'Sales Member 03',
+    assignedSalesMemberId: 'SM-002',
+    assignedSalesMemberName: 'Sales Member 02',
     dealEstimate: 310000,
     lastContactDate: '2026-09-12',
     nextFollowUpDate: '2026-09-21',
@@ -567,7 +546,7 @@ export const INITIAL_FOLLOW_UPS: FollowUp[] = [
     createdAt: '2026-09-10T10:00:00Z',
   },
 
-  // SM-003 Follow-ups (Today, Overdue, Upcoming)
+  // SM-002 Additional Follow-ups (Today, Overdue, Upcoming)
   {
     id: 'flw_7',
     followUpId: 'FLW-0007',
@@ -576,8 +555,8 @@ export const INITIAL_FOLLOW_UPS: FollowUp[] = [
     entityId: 'LED-0005',
     entityName: 'Lead Prospect 05',
     company: 'Nexus Global Robotics',
-    assignedSalesMemberId: 'SM-003',
-    assignedSalesMemberName: 'Sales Member 03',
+    assignedSalesMemberId: 'SM-002',
+    assignedSalesMemberName: 'Sales Member 02',
     date: '2026-09-17',
     time: '15:30',
     type: 'Call',
@@ -593,8 +572,8 @@ export const INITIAL_FOLLOW_UPS: FollowUp[] = [
     entityId: 'CUS-0004',
     entityName: 'Customer Demo 04',
     company: 'Delta Healthcare Networks',
-    assignedSalesMemberId: 'SM-003',
-    assignedSalesMemberName: 'Sales Member 03',
+    assignedSalesMemberId: 'SM-002',
+    assignedSalesMemberName: 'Sales Member 02',
     date: '2026-09-15',
     time: '12:00',
     type: 'Meeting',
@@ -610,8 +589,8 @@ export const INITIAL_FOLLOW_UPS: FollowUp[] = [
     entityId: 'CUS-0007',
     entityName: 'Customer Demo 07',
     company: 'Eta Cloud Infrastructures',
-    assignedSalesMemberId: 'SM-003',
-    assignedSalesMemberName: 'Sales Member 03',
+    assignedSalesMemberId: 'SM-002',
+    assignedSalesMemberName: 'Sales Member 02',
     date: '2026-09-22',
     time: '10:30',
     type: 'Email',
@@ -682,14 +661,14 @@ export const INITIAL_ACTIVITIES: Activity[] = [
     description: 'New lead received from campaign and assigned to Sales Member 02.',
   },
 
-  // SM-003 Activities
+  // SM-002 Additional Activities
   {
     id: 'act_5',
     timestamp: '2026-09-17T09:10:00Z',
-    userId: 'usr_sales_3',
-    userName: 'Sales Member 03',
+    userId: 'usr_sales_2',
+    userName: 'Sales Member 02',
     userRole: 'sales',
-    salesMemberId: 'SM-003',
+    salesMemberId: 'SM-002',
     entityType: 'lead',
     entityId: 'LED-0005',
     entityName: 'Lead Prospect 05',
@@ -700,10 +679,10 @@ export const INITIAL_ACTIVITIES: Activity[] = [
   {
     id: 'act_6',
     timestamp: '2026-09-16T14:15:00Z',
-    userId: 'usr_sales_3',
-    userName: 'Sales Member 03',
+    userId: 'usr_sales_2',
+    userName: 'Sales Member 02',
     userRole: 'sales',
-    salesMemberId: 'SM-003',
+    salesMemberId: 'SM-002',
     entityType: 'customer',
     entityId: 'CUS-0004',
     entityName: 'Customer Demo 04',

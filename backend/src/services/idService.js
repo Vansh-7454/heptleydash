@@ -35,6 +35,26 @@ const idService = {
     return `PAY-${String(seq).padStart(4, '0')}`;
   },
 
+  getNextDeveloperId: async () => {
+    const seq = await getNextSequence('developerId');
+    return `DEV-${String(seq).padStart(3, '0')}`;
+  },
+
+  getNextWebsiteId: async () => {
+    const seq = await getNextSequence('websiteId');
+    return `WEB-${String(seq).padStart(4, '0')}`;
+  },
+
+  getNextDomainId: async () => {
+    const seq = await getNextSequence('domainId');
+    return `DOM-${String(seq).padStart(4, '0')}`;
+  },
+
+  getNextSalesQuestionId: async () => {
+    const seq = await getNextSequence('salesQuestionId');
+    return `Q-${String(seq).padStart(4, '0')}`;
+  },
+
   setSequence: async (name, value) => {
     await Counter.findByIdAndUpdate(
       name,

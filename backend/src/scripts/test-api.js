@@ -98,7 +98,7 @@ async function runTests() {
     });
     assert(salesCustomers.status === 200, 'GET /api/customers succeeds for Sales user');
     const allBelongToSales01 = salesCustomers.data.customers.every((c) => c.salesMemberId === 'SM-001');
-    assert(allBelongToSales01 && salesCustomers.data.customers.length === 3, `Sales 01 sees exactly 3 assigned customers (all SM-001, no leakage from SM-002/SM-003)`);
+    assert(allBelongToSales01 && salesCustomers.data.customers.length === 3, `Sales 01 sees exactly 3 assigned customers (all SM-001, no leakage from SM-002)`);
 
     const adminCustomers = await request('/customers', {
       headers: { Authorization: `Bearer ${adminToken}` },

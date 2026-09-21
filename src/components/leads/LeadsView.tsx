@@ -58,15 +58,6 @@ export default function LeadsView() {
     }
   };
 
-  const STAGES: { id: LeadStatus; label: string }[] = [
-    { id: 'New', label: 'New' },
-    { id: 'Contacted', label: 'Contacted' },
-    { id: 'Qualified', label: 'Qualified' },
-    { id: 'Proposal', label: 'Proposal' },
-    { id: 'Won', label: 'Won' },
-    { id: 'Lost', label: 'Lost' },
-  ];
-
   const NEXT_STAGE_MAP: Record<LeadStatus, LeadStatus | null> = {
     New: 'Contacted',
     Contacted: 'Qualified',
@@ -116,84 +107,17 @@ export default function LeadsView() {
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          leftIcon={<Plus size={15} />}
-          onClick={() => setIsAddLeadModalOpen(true)}
-        >
-          Add Inbound Lead
-        </Button>
+        {role !== 'admin' && (
+          <Button
+            variant="primary"
+            size="sm"
+            leftIcon={<Plus size={15} />}
+            onClick={() => setIsAddLeadModalOpen(true)}
+          >
+            Add Inbound Lead
+          </Button>
+        )}
       </div>
-
-      {/* Visual Pipeline Flow Banner */}
-      <Card style={{ padding: '1rem 1.25rem' }}>
-        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.65rem' }}>
-          Sales Qualification Pipeline Flow
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {STAGES.map((stage, idx) => {
-            const count = baseList.filter((l) => l.status === stage.id).length;
-            const isSelected = statusFilter === stage.id;
-            return (
-              <React.Fragment key={stage.id}>
-                <button
-                  onClick={() => setStatusFilter(statusFilter === stage.id ? 'all' : stage.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.45rem 0.85rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: `1px solid ${isSelected ? 'var(--brand-accent)' : 'var(--border-default)'}`,
-                    backgroundColor: isSelected ? 'var(--brand-accent-subtle)' : 'var(--bg-surface-subtle)',
-                    color: isSelected ? 'var(--brand-accent)' : 'var(--text-primary)',
-                    fontSize: '0.8125rem',
-                    fontWeight: isSelected ? 600 : 500,
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-fast)',
-                  }}
-                  title={`Filter by ${stage.label}`}
-                >
-                  <span>{stage.label}</span>
-                  <span
-                    style={{
-                      fontSize: '0.7rem',
-                      padding: '0.1rem 0.4rem',
-                      borderRadius: '10px',
-                      backgroundColor: isSelected ? 'var(--brand-accent)' : 'var(--border-default)',
-                      color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {count}
-                  </span>
-                </button>
-                {idx < STAGES.length - 1 && (
-                  <span style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>→</span>
-                )}
-              </React.Fragment>
-            );
-          })}
-
-          {statusFilter !== 'all' && (
-            <button
-              onClick={() => setStatusFilter('all')}
-              style={{
-                fontSize: '0.75rem',
-                color: 'var(--brand-accent)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                marginLeft: '0.5rem',
-                textDecoration: 'underline',
-              }}
-            >
-              Reset filter
-            </button>
-          )}
-        </div>
-      </Card>
 
       {/* Filter & Search Bar */}
       <Card style={{ padding: '1rem 1.25rem' }}>
@@ -245,7 +169,7 @@ export default function LeadsView() {
               header: 'Lead ID',
               width: '110px',
               render: (l) => (
-                <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand-primary)' }}>
+                <span className="table-id-tag">
                   {l.leadId}
                 </span>
               ),
@@ -255,15 +179,15 @@ export default function LeadsView() {
               header: 'Lead Name',
               render: (l) => (
                 <div>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{l.name}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{l.email || l.phone}</div>
+                  <div className="table-cell-title">{l.name}</div>
+                  <div className="table-cell-subtitle">{l.email || l.phone}</div>
                 </div>
               ),
             },
             {
               key: 'company',
               header: 'Company Name',
-              render: (l) => <span style={{ fontWeight: 500 }}>{l.company}</span>,
+              render: (l) => <span style={{ fontWeight: 600, color: '#1e293b' }}>{l.company}</span>,
             },
             {
               key: 'service',
@@ -336,7 +260,7 @@ export default function LeadsView() {
                             → {next}
                           </button>
                         )}
-                        {(l.status === 'Qualified' || l.status === 'Proposal' || l.status === 'Won') && (
+                        {role !== 'admin' && (l.status === 'Qualified' || l.status === 'Proposal' || l.status === 'Won') && (
                           <button
                             onClick={() => setConvertingLead(l)}
                             className="btn btn-primary btn-sm"

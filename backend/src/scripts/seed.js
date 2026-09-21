@@ -7,6 +7,10 @@ const FollowUp = require('../models/FollowUp');
 const Activity = require('../models/Activity');
 const Payment = require('../models/Payment');
 const Counter = require('../models/Counter');
+const Website = require('../models/Website');
+const Domain = require('../models/Domain');
+const SalesQuestion = require('../models/SalesQuestion');
+const Notification = require('../models/Notification');
 const { connectDB, disconnectDB } = require('../config/db');
 
 const seedDatabase = async () => {
@@ -21,6 +25,10 @@ const seedDatabase = async () => {
     Activity.deleteMany({}),
     Payment.deleteMany({}),
     Counter.deleteMany({}),
+    Website.deleteMany({}),
+    Domain.deleteMany({}),
+    SalesQuestion.deleteMany({}),
+    Notification.deleteMany({}),
   ]);
 
   // 2. Seed Users
@@ -32,6 +40,7 @@ const seedDatabase = async () => {
       phone: '+91 98765 00000',
       role: 'admin',
       salesMemberId: null,
+      developerId: null,
       status: 'active',
     },
     {
@@ -41,6 +50,7 @@ const seedDatabase = async () => {
       phone: '+91 98765 11101',
       role: 'sales',
       salesMemberId: 'SM-001',
+      developerId: null,
       status: 'active',
     },
     {
@@ -50,21 +60,23 @@ const seedDatabase = async () => {
       phone: '+91 98765 22202',
       role: 'sales',
       salesMemberId: 'SM-002',
+      developerId: null,
       status: 'active',
     },
     {
-      name: 'Sales Member 03',
-      email: 'sales03@heptley.com',
-      password: 'sales123',
-      phone: '+91 98765 33303',
-      role: 'sales',
-      salesMemberId: 'SM-003',
+      name: 'Developer',
+      email: 'developer@heptley.com',
+      password: 'developer123',
+      phone: '+91 98765 44400',
+      role: 'developer',
+      salesMemberId: null,
+      developerId: null,
       status: 'active',
     },
   ]);
 
   const adminUser = users[0];
-  console.log(`[Seed] Seeded ${users.length} user accounts (1 Admin, 3 Sales Members).`);
+  console.log(`[Seed] Seeded ${users.length} user accounts (1 Admin, 2 Sales Members, 1 Developer).`);
 
   // 3. Seed Customers
   const customerData = [
@@ -151,8 +163,8 @@ const seedDatabase = async () => {
       endDate: '2026-09-01',
       projectStatus: 'Onboarding',
       customerStatus: 'Onboarding',
-      salesMemberId: 'SM-003',
-      salesMemberName: 'Sales Member 03',
+      salesMemberId: 'SM-002',
+      salesMemberName: 'Sales Member 02',
       leadSource: 'LinkedIn Campaign',
       dealValue: 550000,
       discount: 50000,
@@ -220,8 +232,8 @@ const seedDatabase = async () => {
       endDate: '2026-07-15',
       projectStatus: 'Onboarding',
       customerStatus: 'Onboarding',
-      salesMemberId: 'SM-003',
-      salesMemberName: 'Sales Member 03',
+      salesMemberId: 'SM-002',
+      salesMemberName: 'Sales Member 02',
       leadSource: 'Website Inbound',
       dealValue: 390000,
       discount: 40000,
@@ -310,8 +322,8 @@ const seedDatabase = async () => {
       status: 'Proposal',
       budget: 320000,
       dealEstimate: 320000,
-      salesMemberId: 'SM-003',
-      salesMemberName: 'Sales Member 03',
+      salesMemberId: 'SM-002',
+      salesMemberName: 'Sales Member 02',
       notes: 'Direct-to-consumer organic grocery subscription app.',
     },
     {
@@ -325,8 +337,8 @@ const seedDatabase = async () => {
       status: 'Qualified',
       budget: 500000,
       dealEstimate: 500000,
-      salesMemberId: 'SM-003',
-      salesMemberName: 'Sales Member 03',
+      salesMemberId: 'SM-002',
+      salesMemberName: 'Sales Member 02',
       notes: 'Telemetry dashboard for smart lock enterprise monitoring.',
     },
   ];
@@ -435,7 +447,7 @@ const seedDatabase = async () => {
       entityType: 'Customer',
       entityName: 'Customer Demo 04',
       company: 'Delta Retail Brands',
-      salesMemberId: 'SM-003',
+      salesMemberId: 'SM-002',
       title: 'App Wireframes Sign-off',
       type: 'Meeting',
       priority: 'High',
@@ -450,7 +462,7 @@ const seedDatabase = async () => {
       entityType: 'Lead',
       entityName: 'Lead Prospect 05',
       company: 'Evergreen Organic Farms',
-      salesMemberId: 'SM-003',
+      salesMemberId: 'SM-002',
       title: 'Proposal Budget Negotiation',
       type: 'Call',
       priority: 'Medium',
@@ -465,7 +477,7 @@ const seedDatabase = async () => {
       entityType: 'Customer',
       entityName: 'Customer Demo 07',
       company: 'Eta EduTech Academy',
-      salesMemberId: 'SM-003',
+      salesMemberId: 'SM-002',
       title: 'Advance Payment Reminder',
       type: 'Email',
       priority: 'Medium',
@@ -481,7 +493,134 @@ const seedDatabase = async () => {
   }
   console.log(`[Seed] Seeded ${followUpData.length} scheduled follow-ups.`);
 
-  // 6. Initialize Atomic Counters
+  // 6. Seed Websites
+  const websiteData = [
+    {
+      websiteId: 'WEB-0001',
+      websiteName: 'Alpha Tech Enterprise Portal',
+      websiteUrl: 'https://alphatech-demo.com',
+      projectType: 'Full-Stack Web Application',
+      customerId: 'CUS-0001',
+      status: 'LIVE',
+      startDate: '2026-01-15',
+      hostingProvider: 'Vercel + AWS',
+      hostingNotes: 'Production cluster with edge caching enabled.',
+      repositoryUrl: 'https://github.com/heptley-clients/alphatech-portal',
+      deploymentUrl: 'https://portal.alphatech-demo.com',
+      technologyStack: 'Next.js 15, React 19, TypeScript, MongoDB',
+      description: 'Enterprise internal customer portal with role-based access.',
+      internalNotes: 'Client renewed annual SLA on Jan 2026.',
+      domainName: 'alphatech-demo.com',
+      domainStartDate: new Date('2026-01-10'),
+      domainExpiryDate: new Date('2027-01-10'),
+      domainRegistrar: 'GoDaddy',
+      domainAutoRenew: true,
+      domainStatus: 'ACTIVE',
+      domainNotes: 'Primary corporate domain. Auto-renewal with company card verified.',
+      createdBy: 'Admin Executive',
+    },
+    {
+      websiteId: 'WEB-0002',
+      websiteName: 'Beta Logistics Fleet Tracker',
+      websiteUrl: 'https://betalogistics-demo.com',
+      projectType: 'Cloud Architecture & DevOps',
+      customerId: 'CUS-0002',
+      status: 'DEVELOPMENT',
+      startDate: '2026-02-01',
+      hostingProvider: 'DigitalOcean',
+      hostingNotes: 'Staging Kubernetes cluster with SSL certs configured.',
+      repositoryUrl: 'https://github.com/heptley-clients/beta-fleet',
+      deploymentUrl: 'https://staging.betalogistics-demo.com',
+      technologyStack: 'Node.js, Express, Docker, Redis, MongoDB',
+      description: 'Real-time GPS tracking dashboard for interstate container fleet.',
+      internalNotes: 'Milestone 2 QA testing ongoing.',
+      domainName: 'betalogistics-demo.com',
+      domainStartDate: new Date('2025-10-05'),
+      domainExpiryDate: new Date('2026-10-05'), // ~14 days from 2026-09-21 -> EXPIRING_SOON
+      domainRegistrar: 'Namecheap',
+      domainAutoRenew: false,
+      domainStatus: 'EXPIRING_SOON',
+      domainNotes: 'Expires within 30 days. Client asked about renewal options.',
+      createdBy: 'Admin Executive',
+    },
+    {
+      websiteId: 'WEB-0003',
+      websiteName: 'Gamma Financial Hub',
+      websiteUrl: 'https://gammafin-demo.com',
+      projectType: 'SaaS Platform',
+      customerId: 'CUS-0003',
+      status: 'LIVE',
+      startDate: '2026-02-15',
+      hostingProvider: 'AWS Lightsail',
+      hostingNotes: 'Automated weekly snapshots and CDN distribution.',
+      repositoryUrl: 'https://github.com/heptley-clients/gamma-financial',
+      deploymentUrl: 'https://app.gammafin-demo.com',
+      technologyStack: 'Next.js, Tailwind, FastAPI, PostgreSQL',
+      description: 'Financial accounting and client portfolio tracking dashboard.',
+      internalNotes: 'Handed off to client dev team for maintenance.',
+      domainName: 'gammafin-demo.com',
+      domainStartDate: new Date('2024-05-01'),
+      domainExpiryDate: new Date('2026-05-01'), // In the past -> EXPIRED
+      domainRegistrar: 'Cloudflare',
+      domainAutoRenew: false,
+      domainStatus: 'EXPIRED',
+      domainNotes: 'Legacy financial portal domain. Awaiting renewal confirmation.',
+      createdBy: 'Admin Executive',
+    },
+  ];
+
+  for (const w of websiteData) {
+    await Website.create(w);
+  }
+  console.log(`[Seed] Seeded ${websiteData.length} websites with integrated domain data.`);
+
+
+  // 8. Seed Sales Questions
+  const salesQuestionData = [
+    {
+      questionId: 'Q-0001',
+      question: 'Client is asking when betalogistics-demo.com expires and whether auto-renew is enabled on Namecheap.',
+      customerId: 'CUS-0002',
+      websiteId: 'WEB-0002',
+      askedBySalesMemberId: 'SM-001',
+      priority: 'HIGH',
+      status: 'OPEN',
+      answer: '',
+      answeredBy: '',
+      answeredAt: null,
+    },
+    {
+      questionId: 'Q-0002',
+      question: 'Can we configure multi-language routing (/es and /fr) on the Alpha Tech enterprise portal?',
+      customerId: 'CUS-0001',
+      websiteId: 'WEB-0001',
+      askedBySalesMemberId: 'SM-001',
+      priority: 'MEDIUM',
+      status: 'ANSWERED',
+      answer: 'Yes, Next.js dynamic routing supports localized subpaths. Can be scheduled for deployment in sprint 4.',
+      answeredBy: 'Developer',
+      answeredAt: new Date('2026-09-18T10:30:00Z'),
+    },
+    {
+      questionId: 'Q-0003',
+      question: 'Client needs SSL wildcard certificate (*.gammafin-demo.com) for multiple staging subdomains.',
+      customerId: 'CUS-0003',
+      websiteId: 'WEB-0003',
+      askedBySalesMemberId: 'SM-002',
+      priority: 'URGENT',
+      status: 'IN_PROGRESS',
+      answer: '',
+      answeredBy: '',
+      answeredAt: null,
+    },
+  ];
+
+  for (const q of salesQuestionData) {
+    await SalesQuestion.create(q);
+  }
+  console.log(`[Seed] Seeded ${salesQuestionData.length} sales questions.`);
+
+  // 9. Initialize Atomic Counters
   await Counter.create([
     { _id: 'salesMemberId', seq: 3 },
     { _id: 'customerId', seq: 7 },
@@ -489,6 +628,9 @@ const seedDatabase = async () => {
     { _id: 'followUpId', seq: 9 },
     { _id: 'paymentId', seq: 0 },
     { _id: 'activityId', seq: 0 },
+    { _id: 'websiteId', seq: 3 },
+    { _id: 'domainId', seq: 3 },
+    { _id: 'salesQuestionId', seq: 3 },
   ]);
   console.log('[Seed] Atomic sequence counters initialized.');
 

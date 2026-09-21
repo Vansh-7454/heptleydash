@@ -9,6 +9,7 @@ const signToken = (user) => {
       id: user._id.toString(),
       role: user.role,
       salesMemberId: user.salesMemberId,
+      developerId: user.developerId,
     },
     secret,
     { expiresIn }
@@ -63,6 +64,7 @@ const authController = {
           email: user.email,
           role: user.role,
           salesMemberId: user.salesMemberId,
+          developerId: user.developerId,
           phone: user.phone,
           status: user.status,
           createdAt: user.createdAt,
@@ -91,6 +93,7 @@ const authController = {
           email: user.email,
           role: user.role,
           salesMemberId: user.salesMemberId,
+          developerId: user.developerId,
           phone: user.phone,
           status: user.status,
           createdAt: user.createdAt,

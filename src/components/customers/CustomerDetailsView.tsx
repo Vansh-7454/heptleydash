@@ -115,26 +115,24 @@ export default function CustomerDetailsView() {
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Sparkles size={14} style={{ color: 'var(--brand-accent)' }} />}
-            onClick={() => {
-              setSelectedAiEntity({
-                type: 'customer',
-                id: customer.customerId || customer.id,
-                name: customer.name,
-              });
-              if (role === 'sales') {
+          {role === 'sales' && (
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Sparkles size={14} style={{ color: 'var(--brand-accent)' }} />}
+              onClick={() => {
+                setSelectedAiEntity({
+                  type: 'customer',
+                  id: customer.customerId || customer.id,
+                  name: customer.name,
+                });
                 setActiveSalesTab('ai-assistant');
-              } else {
-                setActiveAdminTab('ai-assistant');
-              }
-              setDetailedCustomerView(null);
-            }}
-          >
-            Ask AI about this customer
-          </Button>
+                setDetailedCustomerView(null);
+              }}
+            >
+              Ask AI about this customer
+            </Button>
+          )}
 
           <Button
             variant="primary"
@@ -455,14 +453,16 @@ export default function CustomerDetailsView() {
         title="Scheduled Follow-ups"
         subtitle="Pending tasks and scheduled consultations for this account"
         action={
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Plus size={14} />}
-            onClick={() => setIsAddFollowUpModalOpen(true)}
-          >
-            Add Follow-up
-          </Button>
+          role !== 'admin' ? (
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Plus size={14} />}
+              onClick={() => setIsAddFollowUpModalOpen(true)}
+            >
+              Add Follow-up
+            </Button>
+          ) : undefined
         }
       >
         {(() => {

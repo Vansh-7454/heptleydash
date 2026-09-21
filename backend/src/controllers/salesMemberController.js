@@ -134,6 +134,7 @@ const salesMemberController = {
 
       const { getIO } = require('../socket');
       getIO()?.to('admin-room').emit('salesMember:created', memberObj);
+      getIO()?.to('sales-room').emit('salesMember:created', memberObj);
 
       res.status(201).json({
         success: true,
@@ -184,6 +185,7 @@ const salesMemberController = {
 
       const { getIO } = require('../socket');
       getIO()?.to('admin-room').emit('salesMember:updated', memberObj);
+      getIO()?.to('sales-room').emit('salesMember:updated', memberObj);
 
       res.status(200).json({
         success: true,
@@ -233,6 +235,7 @@ const salesMemberController = {
 
       const { getIO } = require('../socket');
       getIO()?.to('admin-room').emit('salesMember:updated', memberObj);
+      getIO()?.to('sales-room').emit('salesMember:updated', memberObj);
 
       res.status(200).json({
         success: true,
@@ -260,6 +263,7 @@ const salesMemberController = {
 
       const { getIO } = require('../socket');
       getIO()?.to('admin-room').emit('salesMember:deleted', { id: member._id.toString(), memberId: member.salesMemberId });
+      getIO()?.to('sales-room').emit('salesMember:deleted', { id: member._id.toString(), memberId: member.salesMemberId });
 
       res.status(200).json({
         success: true,

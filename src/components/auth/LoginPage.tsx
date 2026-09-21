@@ -19,6 +19,7 @@ import {
   BarChart3,
   Bot,
   LogIn,
+  Code,
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -62,6 +63,13 @@ export default function LoginPage() {
   const handleDirectLogin = async (accEmail: string, accPass: string, roleName?: string) => {
     setError(null);
     setEmail(accEmail);
+    if (!accPass) {
+      setPassword('');
+      setError('Please enter your Developer password below to continue.');
+      const passInput = document.getElementById('login-password-input');
+      if (passInput) passInput.focus();
+      return;
+    }
     setPassword(accPass);
     setIsLoading(true);
     setLoadingRole(roleName || accEmail);
@@ -142,17 +150,17 @@ export default function LoginPage() {
       badgeText: '#0369a1',
     },
     {
-      id: 'sales03',
-      name: 'Sales Member 03',
-      email: 'sales03@heptley.com',
-      pass: 'sales123',
-      badge: 'SM-003',
-      desc: 'Growth & Business Development',
-      icon: <User size={16} style={{ color: '#7c3aed' }} />,
-      color: '#8b5cf6',
-      accentBg: '#faf5ff',
-      badgeBg: '#ede9fe',
-      badgeText: '#5b21b6',
+      id: 'developer',
+      name: 'Developer',
+      email: 'developer@heptley.com',
+      pass: 'developer123',
+      badge: 'DEVELOPER',
+      desc: 'Shared Technical & Infrastructure Operations',
+      icon: <Code size={16} style={{ color: '#16a34a' }} />,
+      color: '#16a34a',
+      accentBg: '#f0fdf4',
+      badgeBg: '#dcfce7',
+      badgeText: '#15803d',
     },
   ];
 
@@ -160,8 +168,8 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: 'var(--bg-app, #e6f4fb)',
-        color: 'var(--text-primary, #021a29)',
+        backgroundColor: 'var(--bg-app)',
+        color: 'var(--text-primary, #091321)',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
@@ -178,7 +186,7 @@ export default function LoginPage() {
           zIndex: 50,
           backdropFilter: 'blur(12px)',
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderBottom: '1px solid var(--border-default, rgba(159, 216, 237, 0.45))',
+          borderBottom: '1px solid var(--border-default, #cbd5e1)',
           padding: '0.875rem 2rem',
           display: 'flex',
           alignItems: 'center',
@@ -202,7 +210,7 @@ export default function LoginPage() {
                 width: '42px',
                 height: '42px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #021a29 0%, #073857 100%)',
+                background: 'linear-gradient(135deg, #091321 0%, #1e293b 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -210,7 +218,7 @@ export default function LoginPage() {
                 fontWeight: 800,
                 fontSize: '1.35rem',
                 boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
-                border: '1.5px solid #9fd8ed',
+                border: '1.5px solid #cbd5e1',
                 userSelect: 'none',
               }}
             >
@@ -223,7 +231,7 @@ export default function LoginPage() {
                     fontSize: '1.35rem',
                     fontWeight: 800,
                     letterSpacing: '-0.03em',
-                    color: '#021a29',
+                    color: 'var(--text-primary)',
                     fontFamily: 'inherit',
                   }}
                 >
@@ -245,7 +253,7 @@ export default function LoginPage() {
                   CRM
                 </span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.75rem', color: '#1e3a52', fontWeight: 600 }}>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                 Business Management Portal
               </p>
             </div>
@@ -263,7 +271,7 @@ export default function LoginPage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: viewMode === 'home' ? 800 : 600,
-                color: viewMode === 'home' ? '#0284c7' : '#073857',
+                color: viewMode === 'home' ? 'var(--brand-primary)' : 'var(--text-secondary)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -281,7 +289,7 @@ export default function LoginPage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: '#073857',
+                color: 'var(--text-secondary)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -299,7 +307,7 @@ export default function LoginPage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: '#073857',
+                color: 'var(--text-secondary)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -317,7 +325,7 @@ export default function LoginPage() {
               style={{
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: '#073857',
+                color: 'var(--text-secondary)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -397,7 +405,7 @@ export default function LoginPage() {
                 gap: '0.5rem',
                 backgroundColor: '#f0f9fd',
                 color: '#0284c7',
-                border: '1.5px solid #9fd8ed',
+                border: '1px solid var(--border-default)',
                 padding: '0.55rem 1.25rem',
                 borderRadius: '8px',
                 fontSize: '0.875rem',
@@ -472,7 +480,7 @@ export default function LoginPage() {
               maxWidth: '540px',
               backgroundColor: '#ffffff',
               borderRadius: '24px',
-              border: '2px solid #9fd8ed',
+              border: '1px solid var(--border-default)',
               boxShadow: '0 20px 60px -15px rgba(2, 26, 41, 0.25)',
               padding: '2.5rem 2.25rem',
             }}
@@ -488,7 +496,7 @@ export default function LoginPage() {
                   alignItems: 'center',
                   gap: '0.4rem',
                   backgroundColor: '#f0f9fd',
-                  border: '1.5px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   color: '#0284c7',
                   fontSize: '0.8125rem',
                   fontWeight: 700,
@@ -517,14 +525,14 @@ export default function LoginPage() {
                   width: '60px',
                   height: '60px',
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #021a29 0%, #073857 100%)',
+                  background: 'linear-gradient(135deg, #091321 0%, #1e293b 100%)',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#ffffff',
                   fontWeight: 800,
                   fontSize: '1.85rem',
                   boxShadow: '0 8px 24px rgba(2, 132, 199, 0.3)',
-                  border: '1.5px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   marginBottom: '1rem',
                 }}
               >
@@ -534,14 +542,14 @@ export default function LoginPage() {
                 style={{
                   fontSize: '2rem',
                   fontWeight: 800,
-                  color: '#021a29',
+                  color: 'var(--text-primary)',
                   margin: '0 0 0.35rem 0',
                   letterSpacing: '-0.025em',
                 }}
               >
                 Sign In to <span style={{ color: '#0284c7' }}>heptley</span>
               </h1>
-              <p style={{ margin: 0, fontSize: '0.875rem', color: '#1e3a52', fontWeight: 500 }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 500 }}>
                 Unified Business Management & Client Operations
               </p>
             </div>
@@ -557,12 +565,12 @@ export default function LoginPage() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.875rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: '#073857', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <Cpu size={14} style={{ color: '#0284c7' }} />
                   <span>1-Click Demo Logins</span>
                 </div>
                 <span style={{ fontSize: '0.7rem', color: '#0284c7', fontWeight: 700, backgroundColor: '#e0f2fe', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                  Pass: sales123 / admin123
+                  Pass: sales123 / admin123 / developer123
                 </span>
               </div>
 
@@ -599,7 +607,7 @@ export default function LoginPage() {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                             {acc.icon}
-                            <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#021a29' }}>
+                            <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                               {acc.name}
                             </span>
                           </div>
@@ -639,7 +647,7 @@ export default function LoginPage() {
                         }}
                       >
                         <LogIn size={12} />
-                        <span>{isThisLoading ? 'Signing In...' : `1-Click ${acc.badge}`}</span>
+                        <span>{isThisLoading ? 'Signing In...' : acc.pass ? `1-Click ${acc.badge}` : `Select ${acc.badge}`}</span>
                       </button>
                     </div>
                   );
@@ -659,7 +667,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="login-email-input"
-                  style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, color: '#073857', marginBottom: '0.4rem' }}
+                  style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}
                 >
                   Work Email Address
                 </label>
@@ -676,9 +684,9 @@ export default function LoginPage() {
                       width: '100%',
                       padding: '0.8rem 1rem 0.8rem 2.6rem',
                       borderRadius: '10px',
-                      border: '1.5px solid #9fd8ed',
+                      border: '1px solid var(--border-default)',
                       backgroundColor: '#ffffff',
-                      color: '#021a29',
+                      color: 'var(--text-primary)',
                       fontSize: '0.875rem',
                       fontWeight: 600,
                       outline: 'none',
@@ -690,7 +698,7 @@ export default function LoginPage() {
 
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <label htmlFor="login-pass-input" style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#073857' }}>
+                  <label htmlFor="login-pass-input" style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
                     Password
                   </label>
                   <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
@@ -710,9 +718,9 @@ export default function LoginPage() {
                       width: '100%',
                       padding: '0.8rem 2.6rem 0.8rem 2.6rem',
                       borderRadius: '10px',
-                      border: '1.5px solid #9fd8ed',
+                      border: '1px solid var(--border-default)',
                       backgroundColor: '#ffffff',
-                      color: '#021a29',
+                      color: 'var(--text-primary)',
                       fontSize: '0.875rem',
                       fontWeight: 600,
                       outline: 'none',
@@ -817,14 +825,14 @@ export default function LoginPage() {
                 alignItems: 'center',
                 gap: '0.5rem',
                 backgroundColor: '#ffffff',
-                border: '1.5px solid #9fd8ed',
+                border: '1px solid #cbd5e1',
                 padding: '0.4rem 1.15rem',
                 borderRadius: '9999px',
                 fontSize: '0.8125rem',
                 fontWeight: 700,
                 color: '#0284c7',
                 marginBottom: '1.5rem',
-                boxShadow: '0 2px 8px rgba(2, 132, 199, 0.1)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <Sparkles size={15} style={{ color: '#0284c7' }} />
@@ -838,7 +846,7 @@ export default function LoginPage() {
                 fontWeight: 800,
                 letterSpacing: '-0.035em',
                 lineHeight: 1.15,
-                color: '#021a29',
+                color: 'var(--text-primary, #091321)',
                 maxWidth: '980px',
                 margin: '0 0 1.25rem 0',
               }}
@@ -851,7 +859,7 @@ export default function LoginPage() {
             <p
               style={{
                 fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-                color: '#1e3a52',
+                color: 'var(--text-secondary, #334155)',
                 lineHeight: 1.6,
                 maxWidth: '820px',
                 margin: '0 0 2.25rem 0',
@@ -871,7 +879,7 @@ export default function LoginPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.75rem',
-                  backgroundColor: '#0284c7',
+                  background: 'linear-gradient(180deg, #0284c7 0%, #0052a3 100%)',
                   color: '#ffffff',
                   border: 'none',
                   padding: '0.95rem 2.25rem',
@@ -879,15 +887,15 @@ export default function LoginPage() {
                   fontSize: '1.05rem',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: '0 8px 24px rgba(2, 132, 199, 0.35)',
+                  boxShadow: '0 6px 20px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                   transition: 'all 0.15s',
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = '#0369a1';
+                  e.currentTarget.style.background = 'linear-gradient(180deg, #0369a1 0%, #075985 100%)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = '#0284c7';
+                  e.currentTarget.style.background = 'linear-gradient(180deg, #0284c7 0%, #0052a3 100%)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
@@ -907,7 +915,7 @@ export default function LoginPage() {
                 alignItems: 'center',
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                color: '#073857',
+                color: 'var(--text-secondary)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -943,7 +951,7 @@ export default function LoginPage() {
             {/* Glass Window Container */}
             <div
               style={{
-                backgroundColor: '#021a29',
+                backgroundColor: '#091321',
                 borderRadius: '20px',
                 border: '2px solid rgba(159, 216, 237, 0.4)',
                 boxShadow: '0 24px 64px -12px rgba(2, 26, 41, 0.35), 0 0 40px rgba(2, 132, 199, 0.2)',
@@ -975,7 +983,7 @@ export default function LoginPage() {
                     padding: '0.25rem 1.25rem',
                     borderRadius: '9999px',
                     fontSize: '0.75rem',
-                    color: '#9fd8ed',
+                    color: 'var(--brand-accent-text)',
                     fontWeight: 600,
                     display: 'flex',
                     alignItems: 'center',
@@ -986,7 +994,7 @@ export default function LoginPage() {
                   <span>https://heptley/workspace</span>
                 </div>
 
-                <div style={{ fontSize: '0.75rem', color: '#9fd8ed', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--brand-accent-text)', fontWeight: 600 }}>
                   Live Production Preview
                 </div>
               </div>
@@ -1118,14 +1126,14 @@ export default function LoginPage() {
                   fontSize: '2rem',
                   fontWeight: 800,
                   letterSpacing: '-0.025em',
-                  color: '#021a29',
+                  color: 'var(--text-primary)',
                   margin: '0 0 0.5rem 0',
                 }}
               >
                 Engineered for Enterprise Client Operations at{' '}
                 <span style={{ color: '#0284c7' }}>heptley</span>
               </h2>
-              <p style={{ fontSize: '1rem', color: '#1e3a52', margin: 0 }}>
+              <p style={{ fontSize: '1rem', color: 'var(--text-muted)', margin: 0 }}>
                 Every feature verified against live MongoDB collections with atomic transactions and zero mock data.
               </p>
             </div>
@@ -1144,7 +1152,7 @@ export default function LoginPage() {
                   backgroundColor: '#ffffff',
                   padding: '1.75rem',
                   borderRadius: '16px',
-                  border: '1.5px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   boxShadow: '0 4px 16px rgba(2, 132, 199, 0.08)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -1166,10 +1174,10 @@ export default function LoginPage() {
                 >
                   <Bot size={24} />
                 </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#021a29', margin: 0 }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                   Gemini 2.0 AI Sales Agent
                 </h3>
-                <p style={{ fontSize: '0.875rem', color: '#1e3a52', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   Grounded strictly in active MongoDB records. Generates executive customer summaries, priority follow-up recommendations, outreach drafts, and extracts action items from notes.
                 </p>
                 <div
@@ -1193,7 +1201,7 @@ export default function LoginPage() {
                   backgroundColor: '#ffffff',
                   padding: '1.75rem',
                   borderRadius: '16px',
-                  border: '1.5px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   boxShadow: '0 4px 16px rgba(2, 132, 199, 0.08)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -1214,10 +1222,10 @@ export default function LoginPage() {
                 >
                   <Zap size={24} />
                 </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#021a29', margin: 0 }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                   Real-Time Pipeline & Kanban
                 </h3>
-                <p style={{ fontSize: '0.875rem', color: '#1e3a52', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   Instant stage transitions from New $\to$ Qualified $\to$ Proposal $\to$ Won. Convert winning leads to Customer accounts in 1-click with atomic ID generation (LEAD-XXXX $\to$ CUS-XXXX).
                 </p>
                 <div
@@ -1241,7 +1249,7 @@ export default function LoginPage() {
                   backgroundColor: '#ffffff',
                   padding: '1.75rem',
                   borderRadius: '16px',
-                  border: '1.5px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   boxShadow: '0 4px 16px rgba(2, 132, 199, 0.08)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -1262,10 +1270,10 @@ export default function LoginPage() {
                 >
                   <BarChart3 size={24} />
                 </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#021a29', margin: 0 }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                   Automated Financial Ledger
                 </h3>
-                <p style={{ fontSize: '0.875rem', color: '#1e3a52', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   Pre-save mathematical enforcement guarantees total amounts, discount deductions, and remaining balances match with 100% precision. Rejects negative or excessive payments.
                 </p>
                 <div
@@ -1290,7 +1298,7 @@ export default function LoginPage() {
                   backgroundColor: '#ffffff',
                   padding: '1.75rem',
                   borderRadius: '16px',
-                  border: '1.5px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   boxShadow: '0 4px 16px rgba(2, 132, 199, 0.08)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -1312,10 +1320,10 @@ export default function LoginPage() {
                 >
                   <Shield size={24} />
                 </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#021a29', margin: 0 }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                   Strict Multi-Tenant RBAC
                 </h3>
-                <p style={{ fontSize: '0.875rem', color: '#1e3a52', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   Enforces complete cross-representative portfolio isolation. Sales Member 01 cannot view, edit, or record payments on accounts owned by Sales Member 02 (enforced with 403 Forbidden).
                 </p>
                 <div
@@ -1344,7 +1352,7 @@ export default function LoginPage() {
         style={{
           borderTop: '1.5px solid var(--border-default, rgba(159, 216, 237, 0.5))',
           backgroundColor: '#ffffff',
-          color: '#1e3a52',
+          color: 'var(--text-muted)',
           marginTop: 'auto',
           boxShadow: '0 -4px 20px rgba(2, 132, 199, 0.04)',
         }}
@@ -1367,20 +1375,20 @@ export default function LoginPage() {
                   width: '38px',
                   height: '38px',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #021a29 0%, #073857 100%)',
+                  background: 'linear-gradient(135deg, #091321 0%, #1e293b 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#ffffff',
                   fontWeight: 800,
                   fontSize: '1.25rem',
-                  border: '1px solid #9fd8ed',
+                  border: '1px solid var(--border-default)',
                   boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
                 }}
               >
                 h.
               </div>
-              <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#021a29', letterSpacing: '-0.02em' }}>
+              <span style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                 heptley
               </span>
               <span
@@ -1437,7 +1445,7 @@ export default function LoginPage() {
 
           {/* Column 2: Platform Modules */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#021a29', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Platform Modules
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.875rem' }}>
@@ -1501,7 +1509,7 @@ export default function LoginPage() {
 
           {/* Column 3: Security & Architecture */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#021a29', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Security Standards
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.875rem' }}>
@@ -1565,7 +1573,7 @@ export default function LoginPage() {
 
           {/* Column 4: System Information (Informational, No extra login buttons) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#021a29', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               System Details
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8125rem', color: '#475569' }}>
@@ -1605,20 +1613,20 @@ export default function LoginPage() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontWeight: 800, color: '#021a29' }}>heptley Business Management & CRM</span>
+            <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>heptley Business Management & CRM</span>
             <span>© 2026. All rights reserved.</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 600, color: '#073857' }}>Next.js 15</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Next.js 15</span>
             <span>•</span>
-            <span style={{ fontWeight: 600, color: '#073857' }}>Express API</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Express API</span>
             <span>•</span>
-            <span style={{ fontWeight: 600, color: '#073857' }}>MongoDB Atlas</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>MongoDB Atlas</span>
             <span>•</span>
-            <span style={{ fontWeight: 600, color: '#073857' }}>Socket.IO</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Socket.IO</span>
             <span>•</span>
-            <span style={{ fontWeight: 600, color: '#073857' }}>Gemini 2.0 AI</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Gemini 2.0 AI</span>
           </div>
 
           <button
@@ -1630,7 +1638,7 @@ export default function LoginPage() {
               alignItems: 'center',
               gap: '0.35rem',
               backgroundColor: '#ffffff',
-              border: '1px solid #9fd8ed',
+              border: '1px solid var(--border-default)',
               color: '#0284c7',
               padding: '0.35rem 0.75rem',
               borderRadius: '6px',

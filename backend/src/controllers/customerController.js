@@ -11,10 +11,8 @@ const customerController = {
     try {
       const query = {};
 
-      // 1. Role-based isolation
-      if (req.user.role === 'sales') {
-        query.salesMemberId = req.user.salesMemberId;
-      } else if (req.query.salesMemberId) {
+      // 1. Filter by salesMemberId only when explicitly requested in query
+      if (req.query.salesMemberId) {
         query.salesMemberId = req.query.salesMemberId;
       }
 
@@ -84,13 +82,6 @@ const customerController = {
         });
       }
 
-      // Role authorization
-      if (req.user.role === 'sales' && customer.salesMemberId !== req.user.salesMemberId) {
-        return res.status(403).json({
-          success: false,
-          message: 'Forbidden: You do not have access to customer accounts assigned to other representatives.',
-        });
-      }
 
       res.status(200).json({
         success: true,
@@ -264,13 +255,6 @@ const customerController = {
         });
       }
 
-      // Role check
-      if (req.user.role === 'sales' && customer.salesMemberId !== req.user.salesMemberId) {
-        return res.status(403).json({
-          success: false,
-          message: 'Forbidden: You do not have permission to modify this customer account.',
-        });
-      }
 
       const prevRep = customer.salesMemberId;
       const prevStatus = customer.projectStatus;
@@ -354,6 +338,40 @@ const customerController = {
         success: true,
         message: 'Customer updated successfully.',
         customer: customerObj,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // DELETE /api/customers/:id
+  delete: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const query = id.startsWith('CUS-') ? { customerId: id } : { _id: id };
+      const customer = await Customer.findOne(query);
+
+      if (!customer) {
+        return res.status(404).json({
+          success: false,
+          message: `Customer '${id}' not found.`,
+        });
+      }
+
+      await Customer.deleteOne({ _id: customer._id });
+
+      const payload = {
+        id: customer._id.toString(),
+        customerId: customer.customerId,
+      };
+
+      // Broadcast customer:deleted to all platform participants
+      emitRoleAware('customer:deleted', payload, customer.salesMemberId);
+
+      res.status(200).json({
+        success: true,
+        message: `Customer '${customer.name}' deleted successfully.`,
+        ...payload,
       });
     } catch (err) {
       next(err);

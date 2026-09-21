@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import '@/styles/variables.css';
 import '@/styles/globals.css';
 import { DashboardProvider } from '@/context/DashboardContext';
 
