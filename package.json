@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently -k -n frontend,backend -c cyan,magenta \"next dev\" \"npm --prefix backend run dev\"",
+    "dev:frontend": "next dev",
     "dev:backend": "npm --prefix backend run dev",
+    "dev:all": "npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -21,6 +23,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "concurrently": "^10.0.5",
     "typescript": "^5.7.0"
   }
 }

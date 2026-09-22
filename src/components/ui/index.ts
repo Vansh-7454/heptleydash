@@ -12,3 +12,5 @@ export { default as LoadingState } from './LoadingState';
 export { default as ErrorState } from './ErrorState';
 export { default as Pagination } from './Pagination';
 export { default as ConfirmDialog } from './ConfirmDialog';
+export { default as SearchableSelect } from './SearchableSelect';
+export type { SearchableOption, SearchableSelectProps } from './SearchableSelect';

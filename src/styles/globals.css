@@ -336,6 +336,16 @@ input, select, textarea {
   outline: none;
 }
 
+.form-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+.form-select::-ms-expand {
+  display: none;
+}
+
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--brand-accent);
   box-shadow: 0 0 0 3px var(--brand-accent-glow);

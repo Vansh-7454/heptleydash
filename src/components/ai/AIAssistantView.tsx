@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, SearchableSelect } from '@/components/ui';
 import {
   aiService,
   AIServiceStatus,
   AgentChatResult,
-  MeetingNotesResult,
 } from '@/services/aiService';
 import {
   Bot,
@@ -28,7 +27,6 @@ import {
   HelpCircle,
   Info,
   ChevronRight,
-  ClipboardList,
   Copy,
   RotateCcw,
   ArrowDown,
@@ -62,9 +60,6 @@ export default function AIAssistantView() {
     refreshStats,
   } = useDashboard();
 
-  // Tab: 'chat' | 'meeting-notes'
-  const [activeTab, setActiveTab] = useState<'chat' | 'meeting-notes'>('chat');
-
   // AI Service Status
   const [aiStatus, setAiStatus] = useState<AIServiceStatus | null>(null);
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
@@ -81,14 +76,6 @@ export default function AIAssistantView() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
-
-  // Meeting Notes State
-  const [rawNotes, setRawNotes] = useState('');
-  const [isAnalyzingNotes, setIsAnalyzingNotes] = useState(false);
-  const [meetingResult, setMeetingResult] = useState<MeetingNotesResult | null>(null);
-  const [notesError, setNotesError] = useState<string | null>(null);
-  const [isSavingMeetingAction, setIsSavingMeetingAction] = useState(false);
-  const [meetingActionSaved, setMeetingActionSaved] = useState(false);
 
   // Synchronize preselected context from DashboardContext
   useEffect(() => {
@@ -126,7 +113,7 @@ export default function AIAssistantView() {
       const welcome: ChatMessage = {
         id: 'msg_welcome',
         sender: 'assistant',
-        text: `Hello ${userProfile.name.split(' ')[0]}! I am your heptley AI Sales Agent powered by Gemini.\n\nI can analyze accounts, find overdue follow-ups, evaluate pipeline leads, draft tailored client messages, and transform meeting notes into confirmed CRM actions. What would you like to explore?`,
+        text: `Hello ${userProfile.name.split(' ')[0]}! I am your heptley AI Sales Agent powered by Gemini.\n\nI can analyze accounts, find overdue follow-ups, evaluate pipeline leads, draft tailored client messages, and assist with CRM actions. What would you like to explore?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         suggestedActions: [
           'Draft WhatsApp message for new customer',
@@ -269,68 +256,7 @@ export default function AIAssistantView() {
     }
   };
 
-  // Handler: Analyze Meeting Notes
-  const handleAnalyzeMeetingNotes = async () => {
-    if (!rawNotes.trim() || isAnalyzingNotes) return;
-    setIsAnalyzingNotes(true);
-    setNotesError(null);
-    setMeetingActionSaved(false);
 
-    try {
-      const res = await aiService.analyzeMeetingNotes(rawNotes);
-      setMeetingResult(res);
-    } catch (err: any) {
-      setNotesError(err.message || 'Failed to analyze meeting notes.');
-    } finally {
-      setIsAnalyzingNotes(false);
-    }
-  };
-
-  // Handler: Save Meeting Follow-up to CRM
-  const handleSaveMeetingFollowUp = async () => {
-    if (!meetingResult?.suggestedFollowUp) return;
-    setIsSavingMeetingAction(true);
-
-    try {
-      const targetDate = new Date();
-      targetDate.setDate(
-        targetDate.getDate() + (meetingResult.suggestedFollowUp.recommendedDaysFromNow || 2)
-      );
-      const dateStr = targetDate.toISOString().split('T')[0];
-
-      // Use context or first available customer/lead
-      const entityId = contextId || customers[0]?.customerId || customers[0]?.id || 'GENERAL';
-      const entityName =
-        contextType === 'customer'
-          ? customers.find((c) => c.customerId === contextId || c.id === contextId)?.name || 'Client'
-          : contextType === 'lead'
-          ? leads.find((l) => l.leadId === contextId || l.id === contextId)?.name || 'Lead'
-          : 'General Account';
-
-      const proposedData = {
-        title: meetingResult.suggestedFollowUp.title || 'Follow-up on Meeting Discussion',
-        entityType: contextType === 'lead' ? 'lead' : 'customer',
-        entityId: entityId,
-        entityName: entityName,
-        date: dateStr,
-        time: '11:00',
-        type: meetingResult.suggestedFollowUp.type || 'Call',
-        priority: 'High',
-        note: `Agenda: ${meetingResult.suggestedFollowUp.agenda}. Requirements: ${meetingResult.requirements.join(
-          ', '
-        )}`,
-      };
-
-      await aiService.confirmAction('proposeFollowUp', proposedData);
-      setMeetingActionSaved(true);
-      showToast('Meeting follow-up scheduled in CRM!', 'success');
-      refreshStats();
-    } catch (err: any) {
-      showToast(err.message || 'Failed to save meeting follow-up', 'error');
-    } finally {
-      setIsSavingMeetingAction(false);
-    }
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '1400px', margin: '0 auto' }}>
@@ -386,49 +312,25 @@ export default function AIAssistantView() {
           </p>
         </div>
 
-        {/* Tab switcher: Live Agent Chat vs Meeting Notes Analyzer */}
-        <div style={{ display: 'flex', gap: '0.5rem', backgroundColor: 'var(--bg-surface-subtle)', padding: '0.25rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)' }}>
-          <button
-            onClick={() => setActiveTab('chat')}
+        {/* Sales Agent Chat Indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.45rem',
-              padding: '0.45rem 0.85rem',
+              padding: '0.4rem 0.85rem',
               borderRadius: 'var(--radius-md)',
-              border: 'none',
+              backgroundColor: 'var(--brand-accent)',
+              color: '#ffffff',
               fontSize: '0.8125rem',
               fontWeight: 600,
-              cursor: 'pointer',
-              backgroundColor: activeTab === 'chat' ? 'var(--brand-accent)' : 'transparent',
-              color: activeTab === 'chat' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'all 0.15s ease',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             <Bot size={15} />
             <span>Sales Agent Chat</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('meeting-notes')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.45rem 0.85rem',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              backgroundColor: activeTab === 'meeting-notes' ? 'var(--brand-accent)' : 'transparent',
-              color: activeTab === 'meeting-notes' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            <ClipboardList size={15} />
-            <span>Meeting Notes to Action</span>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -513,33 +415,39 @@ export default function AIAssistantView() {
             </div>
 
             {contextType === 'customer' && (
-              <select
-                className="input-field"
-                value={contextId}
-                onChange={(e) => setContextId(e.target.value)}
-                style={{ height: '32px', fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-md)' }}
-              >
-                {customers.map((c) => (
-                  <option key={c.id} value={c.customerId || c.id}>
-                    {c.name} ({c.company}) · {c.customerId}
-                  </option>
-                ))}
-              </select>
+              <div style={{ width: '280px', maxWidth: '100%' }}>
+                <SearchableSelect
+                  size="sm"
+                  value={contextId}
+                  onChange={(val) => setContextId(val)}
+                  options={customers.map((c) => ({
+                    value: c.customerId || c.id,
+                    label: c.name,
+                    subLabel: c.company,
+                    badge: c.customerId,
+                  }))}
+                  placeholder="Select customer..."
+                  searchPlaceholder="Search customer or company..."
+                />
+              </div>
             )}
 
             {contextType === 'lead' && (
-              <select
-                className="input-field"
-                value={contextId}
-                onChange={(e) => setContextId(e.target.value)}
-                style={{ height: '32px', fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-md)' }}
-              >
-                {leads.map((l) => (
-                  <option key={l.id} value={l.leadId || l.id}>
-                    {l.name} ({l.company}) · {l.leadId} [{l.status}]
-                  </option>
-                ))}
-              </select>
+              <div style={{ width: '310px', maxWidth: '100%' }}>
+                <SearchableSelect
+                  size="sm"
+                  value={contextId}
+                  onChange={(val) => setContextId(val)}
+                  options={leads.map((l) => ({
+                    value: l.leadId || l.id,
+                    label: l.name,
+                    subLabel: l.company,
+                    badge: `${l.leadId} [${l.status}]`,
+                  }))}
+                  placeholder="Select lead..."
+                  searchPlaceholder="Search lead, company or status..."
+                />
+              </div>
             )}
           </div>
 
@@ -548,9 +456,8 @@ export default function AIAssistantView() {
           </div>
         </div>
 
-      {/* VIEW 1: SALES AGENT CHAT */}
-      {activeTab === 'chat' && (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* SALES AGENT CHAT */}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
           {/* Main Chat Container */}
           <div
             style={{
@@ -997,201 +904,7 @@ export default function AIAssistantView() {
             </form>
           </div>
         </div>
-      )}
-
-      {/* VIEW 2: MEETING NOTES TO ACTION */}
-      {activeTab === 'meeting-notes' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: '1.5rem' }}>
-          {/* Raw Notes Input Card */}
-          <Card
-            title="Raw Meeting Notes / Call Transcript"
-            subtitle="Paste notes or unstructured minutes to extract requirements and generate confirmed CRM actions"
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <textarea
-                placeholder="Example: Had a 30-minute sync with Rohan from Apex Digital. They want a complete redesign of their enterprise portal with SSO and audit logs. Budget is around 5 to 6 Lakhs. Target delivery is mid November. He asked me to send a formal proposal by Thursday and schedule a follow-up demo next Monday."
-                value={rawNotes}
-                onChange={(e) => setRawNotes(e.target.value)}
-                rows={10}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border-default)',
-                  backgroundColor: 'var(--bg-surface-subtle)',
-                  color: 'var(--text-primary)',
-                  fontSize: '0.85rem',
-                  lineHeight: 1.55,
-                  resize: 'vertical',
-                  fontFamily: 'inherit',
-                }}
-              />
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setRawNotes(
-                      'Met with Vikram and Ananya from Global Logistics Inc. They are expanding to 3 new branch offices. Need our Enterprise CRM package with customized workflow automation. Budget approved up to ₹7,50,000. Need project completion within 60 days. Requested a follow-up call on Friday at 3:00 PM to review contract clauses.'
-                    )
-                  }
-                >
-                  Load Sample Note
-                </Button>
-
-                <Button
-                  variant="primary"
-                  size="md"
-                  leftIcon={<Sparkles size={15} />}
-                  isLoading={isAnalyzingNotes}
-                  disabled={!rawNotes.trim()}
-                  onClick={handleAnalyzeMeetingNotes}
-                >
-                  Extract Requirements & Next Steps
-                </Button>
-              </div>
-
-              {notesError && (
-                <div
-                  style={{
-                    padding: '0.85rem',
-                    borderRadius: 'var(--radius-md)',
-                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
-                    color: 'var(--color-error)',
-                    fontSize: '0.825rem',
-                  }}
-                >
-                  <AlertCircle size={14} style={{ display: 'inline', marginRight: '0.35rem' }} />
-                  {notesError}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Structured Intelligence Card */}
-          <Card
-            title="Structured Extraction & Proposed CRM Action"
-            subtitle="Synthesized requirements, budget constraints, and actionable next steps"
-          >
-            {!meetingResult && !isAnalyzingNotes && (
-              <div style={{ textAlign: 'center', padding: '3.5rem 1rem', color: 'var(--text-muted)' }}>
-                <FileText size={36} style={{ opacity: 0.4, margin: '0 auto 0.75rem' }} />
-                <p style={{ fontSize: '0.875rem' }}>Paste notes on the left and click Extract to see structured intelligence.</p>
-              </div>
-            )}
-
-            {isAnalyzingNotes && (
-              <div style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
-                <RefreshCw size={28} className="animate-spin" style={{ color: 'var(--brand-accent)', margin: '0 auto 0.75rem' }} />
-                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Extracting key points, budget, and commitments with Gemini...
-                </p>
-              </div>
-            )}
-
-            {meetingResult && !isAnalyzingNotes && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {/* Requirements */}
-                <div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#10B981' }}>
-                    Identified Requirements
-                  </span>
-                  <ul style={{ margin: '0.35rem 0 0', paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    {meetingResult.requirements?.map((req, i) => (
-                      <li key={i} style={{ fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Budget & Timeline */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface-subtle)', border: '1px solid var(--border-subtle)' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-                      Budget Indicated
-                    </span>
-                    <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0.2rem 0 0' }}>
-                      {meetingResult.budget || 'Not specified in notes'}
-                    </p>
-                  </div>
-
-                  <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-surface-subtle)', border: '1px solid var(--border-subtle)' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-                      Delivery Timeline
-                    </span>
-                    <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0.2rem 0 0' }}>
-                      {meetingResult.timeline || 'Not specified in notes'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Important Considerations */}
-                {meetingResult.importantPoints?.length > 0 && (
-                  <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#F59E0B' }}>
-                      Key Considerations & Client Commitments
-                    </span>
-                    <ul style={{ margin: '0.35rem 0 0', paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                      {meetingResult.importantPoints.map((pt, i) => (
-                        <li key={i} style={{ fontSize: '0.825rem', color: 'var(--text-primary)' }}>
-                          {pt}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Next Action Callout */}
-                <div
-                  style={{
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-lg)',
-                    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)',
-                    border: '1px solid rgba(99, 102, 241, 0.25)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.75rem',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--brand-accent)' }}>
-                      Proposed Follow-up Action
-                    </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-                      {meetingResult.suggestedFollowUp?.title || meetingResult.nextAction}
-                    </div>
-                    {meetingResult.suggestedFollowUp?.agenda && (
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-                        Agenda: {meetingResult.suggestedFollowUp.agenda}
-                      </p>
-                    )}
-                  </div>
-
-                  {meetingActionSaved ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10B981', fontSize: '0.85rem', fontWeight: 600 }}>
-                      <CheckCircle2 size={16} />
-                      <span>Follow-up confirmed and recorded in CRM!</span>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      leftIcon={<Calendar size={14} />}
-                      isLoading={isSavingMeetingAction}
-                      onClick={handleSaveMeetingFollowUp}
-                    >
-                      Confirm & Schedule Follow-up in CRM
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
+

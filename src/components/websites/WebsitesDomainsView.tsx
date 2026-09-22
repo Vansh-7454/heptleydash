@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
 import { Website, WebsiteStatus } from '@/types';
-import { Badge, Button, Input, Select, Modal, ConfirmDialog } from '@/components/ui';
+import { Badge, Button, Input, Select, Modal, ConfirmDialog, SearchableSelect } from '@/components/ui';
 import {
   Globe,
   Server,
@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 
 import { parseClientDisplay, formatDateDisplay } from '@/utils/formatters';
+import { getSafeClickProps } from '@/utils/safeClick';
 
 export default function WebsitesDomainsView() {
   const {
@@ -522,18 +523,21 @@ export default function WebsitesDomainsView() {
                 return (
                   <tr
                     key={w.id || w.websiteId}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      if (typeof window !== 'undefined') {
-                        const selection = window.getSelection();
-                        if (selection && selection.toString().trim().length > 0) return;
-                      }
-                      setViewingWebsite(w);
-                    }}
+                    {...getSafeClickProps(() => setViewingWebsite(w))}
                   >
                     {/* Website ID */}
                     <td style={{ verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                      <span className="table-id-tag">{w.websiteId}</span>
+                      <span
+                        className="table-id-tag"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingWebsite(w);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to view details"
+                      >
+                        {w.websiteId}
+                      </span>
                     </td>
 
                     {/* Client & Customer ID */}
@@ -1308,30 +1312,23 @@ export default function WebsitesDomainsView() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
-                    Client Account *
-                  </label>
-                  <select
+                  <SearchableSelect
+                    label="Client Account"
+                    required
                     value={formCustomerId}
-                    onChange={(e) => handleCustomerChange(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.55rem 0.75rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
-                      fontSize: '0.85rem',
-                      color: 'var(--text-primary)',
-                      outline: 'none',
-                    }}
-                  >
-                    <option value="">-- Direct / Unassigned Client --</option>
-                    {customers.map((c) => (
-                      <option key={c.id || c.customerId} value={c.customerId}>
-                        {c.name} {c.company ? `(${c.company})` : ''} - {c.customerId}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleCustomerChange(val)}
+                    placeholder="Search or select a client account..."
+                    searchPlaceholder="Search client by name, company, or ID..."
+                    options={[
+                      { value: '', label: '-- Direct / Unassigned Client --' },
+                      ...customers.map((c) => ({
+                        value: c.customerId,
+                        label: c.name,
+                        subLabel: c.company,
+                        badge: c.customerId,
+                      })),
+                    ]}
+                  />
                 </div>
 
                 <div>

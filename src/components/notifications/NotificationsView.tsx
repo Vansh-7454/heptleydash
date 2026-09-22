@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
 import { Card, Table, Badge, Button, Tabs } from '@/components/ui';
+import { getSafeClickProps } from '@/utils/safeClick';
 import {
   Bell,
   CheckCheck,
@@ -36,7 +37,7 @@ export default function NotificationsView() {
     return true;
   });
 
-  const handleNotificationClick = async (notifId: string, targetTab?: string) => {
+  const handleNotificationClick = async (notifId: string) => {
     // If the user was highlighting/selecting text (e.g. to copy), don't trigger navigation
     if (typeof window !== 'undefined') {
       const selection = window.getSelection();
@@ -45,12 +46,16 @@ export default function NotificationsView() {
       }
     }
 
+    // Mark as seen in-place without navigating away
     await markNotificationRead(notifId);
-    if (targetTab) {
-      if (role === 'admin') setActiveAdminTab(targetTab as any);
-      else if (role === 'developer') setActiveDeveloperTab(targetTab as any);
-      else setActiveSalesTab(targetTab as any);
-    }
+  };
+
+  const handleNavigateToRecord = (e: React.MouseEvent, targetTab?: string) => {
+    e.stopPropagation();
+    if (!targetTab) return;
+    if (role === 'admin') setActiveAdminTab(targetTab as any);
+    else if (role === 'developer') setActiveDeveloperTab(targetTab as any);
+    else setActiveSalesTab(targetTab as any);
   };
 
   const getIconForType = (type: string) => {
@@ -163,6 +168,7 @@ export default function NotificationsView() {
           filtered.map((notif, idx) => (
             <Card
               key={`notif-${notif.id || idx}-${idx}`}
+              {...getSafeClickProps(() => handleNotificationClick(notif.id))}
               style={{
                 padding: '1rem 1.25rem',
                 backgroundColor: notif.read ? 'var(--bg-surface)' : '#eff6ff',
@@ -173,9 +179,9 @@ export default function NotificationsView() {
                 gap: '1rem',
                 cursor: 'pointer',
               }}
-              onClick={() => handleNotificationClick(notif.id, notif.targetTab)}
+              title={notif.read ? 'Read' : 'Click to mark as read'}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0, flex: 1 }}>
                 <div
                   style={{
                     width: '38px',
@@ -191,7 +197,7 @@ export default function NotificationsView() {
                 >
                   {getIconForType(notif.type)}
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
                       {notif.title}
@@ -204,11 +210,33 @@ export default function NotificationsView() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>
                   {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST
                 </span>
-                <ArrowRight size={16} style={{ color: 'var(--text-muted)' }} />
+                {notif.targetTab && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleNavigateToRecord(e, notif.targetTab)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: 'var(--radius-sm)',
+                      color: 'var(--brand-accent)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                    }}
+                    title={`Open in ${notif.targetTab}`}
+                  >
+                    <span>Open</span>
+                    <ArrowRight size={14} />
+                  </button>
+                )}
               </div>
             </Card>
           ))

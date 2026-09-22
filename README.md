@@ -48,12 +48,21 @@ npm install
 ```
 
 ### 3. Running Locally
-Start the development server:
+To run both the Next.js frontend (port 3000) and Express API backend (port 5000) together:
 ```bash
-npm run dev
+npm run dev:all
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to explore the dashboard.
+Alternatively, you can run them in separate terminal tabs:
+```bash
+# Terminal 1: Frontend (Next.js)
+npm run dev
+
+# Terminal 2: Backend (Express API & MongoDB)
+npm run dev:backend
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to explore the dashboard. Default credentials: `admin@heptley.com` / `admin123`.
 
 ---
 

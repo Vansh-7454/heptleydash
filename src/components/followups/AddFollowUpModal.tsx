@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Modal, Input, Select, Button } from '@/components/ui';
+import { Modal, Input, Select, Button, SearchableSelect } from '@/components/ui';
 import { FollowUpType } from '@/types';
 
 export default function AddFollowUpModal() {
@@ -89,8 +89,18 @@ export default function AddFollowUpModal() {
 
   const entityOptions =
     entityType === 'customer'
-      ? customers.map((c) => ({ value: c.customerId || c.id, label: `${c.name} (${c.company})` }))
-      : leads.map((l) => ({ value: l.leadId || l.id, label: `${l.name} (${l.company})` }));
+      ? customers.map((c) => ({
+          value: c.customerId || c.id,
+          label: c.name,
+          subLabel: c.company,
+          badge: c.customerId,
+        }))
+      : leads.map((l) => ({
+          value: l.leadId || l.id,
+          label: l.name,
+          subLabel: l.company,
+          badge: `${l.leadId} [${l.status}]`,
+        }));
 
   return (
     <Modal
@@ -139,10 +149,12 @@ export default function AddFollowUpModal() {
             ]}
           />
 
-          <Select
+          <SearchableSelect
             label="Select Account / Contact"
             value={selectedEntityId}
-            onChange={(e) => setSelectedEntityId(e.target.value)}
+            onChange={(val) => setSelectedEntityId(val)}
+            placeholder={entityType === 'customer' ? 'Search or select customer...' : 'Search or select lead...'}
+            searchPlaceholder={entityType === 'customer' ? 'Search customer, company or ID...' : 'Search lead, company or status...'}
             options={entityOptions}
           />
         </div>

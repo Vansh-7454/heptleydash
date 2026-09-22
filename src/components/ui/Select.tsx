@@ -18,7 +18,7 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, hint, options, containerClassName = '', className = '', id, ...props }, ref) => {
+  ({ label, error, hint, options, containerClassName = '', className = '', id, style, ...props }, ref) => {
     const selectId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
     return (
@@ -33,7 +33,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             id={selectId}
             ref={ref}
             className={`form-select ${error ? 'error' : ''} ${className}`.trim()}
-            style={{ paddingRight: '2rem', appearance: 'none' }}
+            style={{
+              paddingRight: '2.25rem',
+              ...style,
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+            }}
             {...props}
           >
             {options.map((opt, index) => (

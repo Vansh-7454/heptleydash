@@ -117,8 +117,10 @@ interface DashboardContextType {
   openLeadsCount: number;
   pendingFollowUpsCount: number;
   activeWebsitesCount: number;
+  totalDomainsCount: number;
   activeDomainsCount: number;
   expiringDomainsCount: number;
+  expiredDomainsCount: number;
   openQuestionsCount: number;
 
   // Deep Navigation
@@ -1148,7 +1150,57 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
   const myWebsites = useMemo(() => websites, [websites]);
 
-  const myDomains = useMemo(() => domains, [domains]);
+  // Unified single source of truth for domains (dynamically derived from live websites)
+  const derivedDomains: Domain[] = useMemo(() => {
+    return websites
+      .filter((w) => Boolean(w.domainName && w.domainName.trim()))
+      .map((w) => {
+        let days = w.domainDaysRemaining ?? w.daysRemaining;
+        if ((days === undefined || days === null) && w.domainExpiryDate) {
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          const exp = new Date(w.domainExpiryDate);
+          exp.setHours(0, 0, 0, 0);
+          days = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        }
+        let status: 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED' = 'ACTIVE';
+        if (days !== undefined && days !== null) {
+          if (days < 0) status = 'EXPIRED';
+          else if (days <= 30) status = 'EXPIRING_SOON';
+          else status = 'ACTIVE';
+        } else if (w.domainStatus) {
+          status = w.domainStatus as any;
+        }
+
+        return {
+          id: w.id || w.websiteId,
+          domainId: `DOM-${w.websiteId.replace('WEB-', '')}`,
+          domainName: w.domainName!.trim().toLowerCase(),
+          websiteId: w.websiteId,
+          websiteName: w.websiteName || w.name || '',
+          websiteUrl: w.websiteUrl || w.url || '',
+          customerId: w.customerId,
+          customerName: w.customerName,
+          startDate: w.domainStartDate || w.startDate || '',
+          expiryDate: w.domainExpiryDate || '',
+          daysRemaining: days ?? 0,
+          status,
+          registrar: w.domainRegistrar || 'GoDaddy',
+          autoRenew: w.domainAutoRenew ?? false,
+          notes: w.domainNotes || '',
+          createdAt: w.createdAt || '',
+          updatedAt: w.updatedAt || '',
+        };
+      });
+  }, [websites]);
+
+  const effectiveDomains = derivedDomains.length > 0 ? derivedDomains : domains;
+  const myDomains = useMemo(() => effectiveDomains, [effectiveDomains]);
+
+  const totalDomainsCount = effectiveDomains.length;
+  const activeDomainsCount = effectiveDomains.filter((d) => d.status === 'ACTIVE').length;
+  const expiringDomainsCount = effectiveDomains.filter((d) => d.status === 'EXPIRING_SOON').length;
+  const expiredDomainsCount = effectiveDomains.filter((d) => d.status === 'EXPIRED').length;
 
   const myQuestions = useMemo(() => {
     if (role === 'sales') {
@@ -1159,8 +1211,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [salesQuestions, role, userProfile.salesMemberId, userProfile.memberId]);
 
   const activeWebsitesCount = stats?.activeWebsites ?? websites.filter((w) => w.status === 'ACTIVE' || w.status === 'LIVE').length;
-  const activeDomainsCount = stats?.activeDomains ?? domains.filter((d) => d.status === 'ACTIVE').length;
-  const expiringDomainsCount = stats?.expiringDomains ?? domains.filter((d) => d.status === 'EXPIRING_SOON').length;
   const openQuestionsCount = stats?.openSalesQuestions ?? salesQuestions.filter((q) => q.status === 'OPEN' || q.status === 'IN_PROGRESS').length;
 
   return (
@@ -1190,7 +1240,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         activities,
         payments,
         websites,
-        domains,
+        domains: effectiveDomains,
         salesQuestions,
         technicalNotes,
         notifications,
@@ -1214,8 +1264,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         openLeadsCount,
         pendingFollowUpsCount,
         activeWebsitesCount,
+        totalDomainsCount,
         activeDomainsCount,
         expiringDomainsCount,
+        expiredDomainsCount,
         openQuestionsCount,
         detailedCustomerView,
         setDetailedCustomerView,

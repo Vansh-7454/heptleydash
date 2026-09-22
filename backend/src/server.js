@@ -35,11 +35,31 @@ const startServer = async () => {
       console.log(`==================================================\n`);
     });
 
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n[Server Error] Port ${PORT} is already in use by another process.`);
+        console.error(`[Tip] Stop other running instances or free port ${PORT} before restarting.\n`);
+      } else {
+        console.error('[Server Error]', err);
+      }
+      process.exit(1);
+    });
+
     const shutdown = async (signal) => {
       console.log(`\n[Server] Received ${signal}. Shutting down gracefully...`);
+      if (typeof server.closeAllConnections === 'function') {
+        server.closeAllConnections();
+      }
+      const forceExit = setTimeout(() => {
+        process.exit(0);
+      }, 1000);
+      forceExit.unref();
+
       server.close(async () => {
-        const { disconnectDB } = require('./config/db');
-        await disconnectDB();
+        try {
+          const { disconnectDB } = require('./config/db');
+          await disconnectDB();
+        } catch (_) {}
         console.log('[Server] Server closed. Database disconnected.');
         process.exit(0);
       });

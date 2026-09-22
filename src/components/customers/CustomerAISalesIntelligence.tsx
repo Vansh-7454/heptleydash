@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Customer } from '@/types';
-import { Card, Badge, Button, Select } from '@/components/ui';
+import { Card, Badge, Button, Select, SearchableSelect } from '@/components/ui';
 import {
   aiService,
   CustomerSummaryResult,
@@ -611,22 +611,21 @@ export default function CustomerAISalesIntelligence({ customer }: CustomerAISale
         {activeSubTab === 'message' && (
           <div>
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-              <div style={{ minWidth: '240px', flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  Select Message Purpose
-                </label>
-                <select
-                  className="input-field"
+              <div style={{ minWidth: '260px', flex: 1 }}>
+                <SearchableSelect
+                  label="Select Message Purpose"
                   value={messagePurpose}
-                  onChange={(e) => setMessagePurpose(e.target.value)}
-                  style={{ width: '100%', height: '38px', borderRadius: 'var(--radius-md)' }}
-                >
-                  <option value="check_in">Relationship Check-in</option>
-                  <option value="payment_reminder">Payment / Invoice Follow-up</option>
-                  <option value="proposal_followup">Contract / Scope Review</option>
-                  <option value="onboarding_update">Onboarding Milestone Progress</option>
-                  <option value="re_engagement">Re-engagement / Status Inquiry</option>
-                </select>
+                  onChange={(val) => setMessagePurpose(val)}
+                  placeholder="Select message purpose..."
+                  searchPlaceholder="Search purpose..."
+                  options={[
+                    { value: 'check_in', label: 'Relationship Check-in', subLabel: 'Routine touchpoint with key contacts' },
+                    { value: 'payment_reminder', label: 'Payment / Invoice Follow-up', subLabel: 'Follow up on open milestones or balances' },
+                    { value: 'proposal_followup', label: 'Contract / Scope Review', subLabel: 'Review requirements and proposal terms' },
+                    { value: 'onboarding_update', label: 'Onboarding Milestone Progress', subLabel: 'Progress update on active deployments' },
+                    { value: 're_engagement', label: 'Re-engagement / Status Inquiry', subLabel: 'Reactivate quiet or stale accounts' },
+                  ]}
+                />
               </div>
 
               <Button

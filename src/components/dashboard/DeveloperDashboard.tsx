@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Badge, Button, Modal } from '@/components/ui';
+import { Badge, Button, Modal, SearchableSelect } from '@/components/ui';
 import {
   Code,
   Globe,
@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { Website, WebsiteStatus, Customer, ProjectStatus } from '@/types';
 import { parseClientDisplay, formatDateDisplay } from '@/utils/formatters';
+import { getSafeClickProps } from '@/utils/safeClick';
 
 const PROJECT_STATUS_CONFIG: Record<
   ProjectStatus,
@@ -98,6 +99,10 @@ export default function DeveloperDashboard() {
     customers,
     salesQuestions,
     notifications,
+    totalDomainsCount,
+    activeDomainsCount,
+    expiringDomainsCount,
+    expiredDomainsCount,
     answerSalesQuestion,
     createWebsite,
     updateWebsite,
@@ -389,11 +394,7 @@ export default function DeveloperDashboard() {
   const totalWebsites = websites.length;
   const liveWebsites = websites.filter((w) => w.status === 'LIVE' || w.status === 'ACTIVE').length;
 
-  const domainsCount = websites.filter((w) => w.domainName).length;
-  const expiringDomainsCount = websites.filter((w) => {
-    const days = w.daysRemaining ?? getDaysRemaining(w.domainExpiryDate);
-    return days !== null && days <= 30;
-  }).length;
+  const domainsCount = totalDomainsCount;
 
   const openSalesQuestions = salesQuestions.filter((q) => q.status === 'OPEN').length;
   const highPriorityQuestions = salesQuestions.filter(
@@ -619,8 +620,16 @@ export default function DeveloperDashboard() {
             <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#7c3aed', lineHeight: 1.15, marginTop: '0.25rem' }}>
               {domainsCount}
             </div>
-            <div style={{ fontSize: '0.72rem', fontWeight: 600, marginTop: '0.35rem', color: expiringDomainsCount > 0 ? '#b91c1c' : '#7c3aed' }}>
-              {expiringDomainsCount > 0 ? `${expiringDomainsCount} Expiring Soon (<30d)` : 'All Domains Monitored'}
+            <div style={{ fontSize: '0.72rem', fontWeight: 600, marginTop: '0.35rem', color: expiringDomainsCount > 0 || expiredDomainsCount > 0 ? '#b91c1c' : '#7c3aed' }}>
+              {expiringDomainsCount > 0 || expiredDomainsCount > 0 ? (
+                <>
+                  {expiringDomainsCount > 0 && <span>{expiringDomainsCount} Expiring Soon (&le;30d)</span>}
+                  {expiringDomainsCount > 0 && expiredDomainsCount > 0 && <span> · </span>}
+                  {expiredDomainsCount > 0 && <span>{expiredDomainsCount} Expired</span>}
+                </>
+              ) : (
+                `All ${domainsCount} Domains Active & Monitored`
+              )}
             </div>
           </div>
           <div
@@ -1128,17 +1137,20 @@ export default function DeveloperDashboard() {
                   return (
                     <tr
                       key={w.id || w.websiteId}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          const selection = window.getSelection();
-                          if (selection && selection.toString().trim().length > 0) return;
-                        }
-                        setViewingWebsite(w);
-                      }}
+                      {...getSafeClickProps(() => setViewingWebsite(w))}
                     >
                       <td style={{ verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                        <span className="table-id-tag">{w.websiteId}</span>
+                        <span
+                          className="table-id-tag"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingWebsite(w);
+                          }}
+                          style={{ cursor: 'pointer' }}
+                          title="Click to view details"
+                        >
+                          {w.websiteId}
+                        </span>
                       </td>
 
                       <td style={{ verticalAlign: 'middle' }}>
@@ -2152,29 +2164,22 @@ export default function DeveloperDashboard() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.35rem', color: 'var(--text-primary)' }}>
-                    Client Account
-                  </label>
-                  <select
+                  <SearchableSelect
+                    label="Client Account"
                     value={formCustomerId}
-                    onChange={(e) => setFormCustomerId(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.55rem 0.75rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-default)',
-                      backgroundColor: '#ffffff',
-                      fontSize: '0.85rem',
-                      outline: 'none',
-                    }}
-                  >
-                    <option value="">-- Direct Client --</option>
-                    {customers.map((c) => (
-                      <option key={c.id || c.customerId} value={c.customerId}>
-                        {c.name} {c.company ? `(${c.company})` : ''} - {c.customerId}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormCustomerId(val)}
+                    placeholder="Search or select a client account..."
+                    searchPlaceholder="Search client by name, company, or ID..."
+                    options={[
+                      { value: '', label: '-- Direct Client --' },
+                      ...customers.map((c) => ({
+                        value: c.customerId,
+                        label: c.name,
+                        subLabel: c.company,
+                        badge: c.customerId,
+                      })),
+                    ]}
+                  />
                 </div>
 
                 <div>

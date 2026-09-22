@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Modal, Input, Select, Button } from '@/components/ui';
+import { Modal, Input, Select, Button, SearchableSelect } from '@/components/ui';
 import { PaymentMethod } from '@/types';
 
 export default function RecordPaymentModal() {
@@ -86,11 +86,10 @@ export default function RecordPaymentModal() {
           </div>
         )}
 
-        <Select
+        <SearchableSelect
           label="Customer Account"
           value={customerId}
-          onChange={(e) => {
-            const cid = e.target.value;
+          onChange={(cid) => {
             setCustomerId(cid);
             const found = customers.find((c) => c.customerId === cid || c.id === cid);
             if (found) {
@@ -98,9 +97,13 @@ export default function RecordPaymentModal() {
               setAmountPaid(String(found.remainingAmount || found.finalAmount));
             }
           }}
+          placeholder="Search or select customer account..."
+          searchPlaceholder="Search customer by name, company, or ID..."
           options={customers.map((c) => ({
             value: c.customerId || c.id,
-            label: `${c.name} - ${c.company} (Remaining: ₹${c.remainingAmount.toLocaleString('en-IN')})`,
+            label: c.name,
+            subLabel: `${c.company} · Remaining: ₹${c.remainingAmount.toLocaleString('en-IN')}`,
+            badge: c.customerId,
           }))}
         />
 

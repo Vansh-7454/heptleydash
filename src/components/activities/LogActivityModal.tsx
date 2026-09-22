@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Modal, Input, Select, Button } from '@/components/ui';
+import { Modal, Input, Select, Button, SearchableSelect } from '@/components/ui';
 import { ActivityType } from '@/types';
 
 export default function LogActivityModal() {
@@ -82,8 +82,18 @@ export default function LogActivityModal() {
 
   const entityOptions =
     targetType === 'customer'
-      ? customers.map((c) => ({ value: c.customerId || c.id, label: `${c.name} (${c.company})` }))
-      : leads.map((l) => ({ value: l.leadId || l.id, label: `${l.name} (${l.company})` }));
+      ? customers.map((c) => ({
+          value: c.customerId || c.id,
+          label: c.name,
+          subLabel: c.company,
+          badge: c.customerId,
+        }))
+      : leads.map((l) => ({
+          value: l.leadId || l.id,
+          label: l.name,
+          subLabel: l.company,
+          badge: `${l.leadId} [${l.status}]`,
+        }));
 
   return (
     <Modal
@@ -141,10 +151,12 @@ export default function LogActivityModal() {
         </div>
 
         {targetType !== 'general' && (
-          <Select
+          <SearchableSelect
             label="Select Specific Entity"
             value={selectedEntityId}
-            onChange={(e) => setSelectedEntityId(e.target.value)}
+            onChange={(val) => setSelectedEntityId(val)}
+            placeholder={targetType === 'customer' ? 'Search or select customer...' : 'Search or select lead...'}
+            searchPlaceholder={targetType === 'customer' ? 'Search customer, company or ID...' : 'Search lead, company or status...'}
             options={entityOptions}
           />
         )}

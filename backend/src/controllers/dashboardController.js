@@ -67,17 +67,39 @@ const dashboardController = {
         });
       }
 
+      // Helper to dynamically calculate domain metrics from live website domain fields
+      const websitesWithDomains = await Website.find({ domainName: { $exists: true, $ne: '' } }).lean();
+      let calculatedActiveDomains = 0;
+      let calculatedExpiringDomains = 0;
+      let calculatedExpiredDomains = 0;
+      const todayDate = new Date();
+      todayDate.setHours(0, 0, 0, 0);
+
+      websitesWithDomains.forEach((w) => {
+        if (!w.domainExpiryDate) {
+          calculatedActiveDomains++;
+          return;
+        }
+        const expiry = new Date(w.domainExpiryDate);
+        expiry.setHours(0, 0, 0, 0);
+        const days = Math.ceil((expiry.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (days < 0) {
+          calculatedExpiredDomains++;
+        } else if (days <= 30) {
+          calculatedExpiringDomains++;
+        } else {
+          calculatedActiveDomains++;
+        }
+      });
+      const totalConnectedDomains = websitesWithDomains.length;
+
       if (role === 'developer') {
         // Shared Developer Dashboard Metrics (All Organization Scope - No developerId filtering)
         const [
           totalWebsitesCount,
-          activeDomainsCount,
-          expiringDomainsCount,
           openQuestionsCount,
         ] = await Promise.all([
           Website.countDocuments({}),
-          Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'ACTIVE' }),
-          Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'EXPIRING_SOON' }),
           SalesQuestion.countDocuments({ status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
         ]);
 
@@ -86,10 +108,15 @@ const dashboardController = {
           totalWebsitesCount,
           myWebsites: totalWebsitesCount,
           myWebsitesCount: totalWebsitesCount,
-          activeDomains: activeDomainsCount,
-          activeDomainsCount,
-          expiringDomains: expiringDomainsCount,
-          expiringDomainsCount,
+          totalDomains: totalConnectedDomains,
+          totalDomainsCount: totalConnectedDomains,
+          connectedDomains: totalConnectedDomains,
+          activeDomains: calculatedActiveDomains,
+          activeDomainsCount: calculatedActiveDomains,
+          expiringDomains: calculatedExpiringDomains,
+          expiringDomainsCount: calculatedExpiringDomains,
+          expiredDomains: calculatedExpiredDomains,
+          expiredDomainsCount: calculatedExpiredDomains,
           openQuestions: openQuestionsCount,
           openQuestionsCount,
         };
@@ -109,8 +136,6 @@ const dashboardController = {
         openLeads,
         pendingFollowUps,
         activeWebsites,
-        activeDomains,
-        expiringDomains,
         openSalesQuestions,
       ] = await Promise.all([
         User.countDocuments({ role: 'sales', status: 'active' }),
@@ -118,8 +143,6 @@ const dashboardController = {
         Lead.countDocuments({ status: { $nin: ['Won', 'Lost'] } }),
         FollowUp.countDocuments({ status: 'Pending' }),
         Website.countDocuments({ status: { $in: ['LIVE', 'ACTIVE'] } }),
-        Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'ACTIVE' }),
-        Website.countDocuments({ domainName: { $exists: true, $ne: '' }, domainStatus: 'EXPIRING_SOON' }),
         SalesQuestion.countDocuments({ status: { $in: ['OPEN', 'IN_PROGRESS'] } }),
       ]);
 
@@ -129,8 +152,11 @@ const dashboardController = {
         openLeads,
         pendingFollowUps,
         activeWebsites,
-        activeDomains,
-        expiringDomains,
+        totalDomains: totalConnectedDomains,
+        connectedDomains: totalConnectedDomains,
+        activeDomains: calculatedActiveDomains,
+        expiringDomains: calculatedExpiringDomains,
+        expiredDomains: calculatedExpiredDomains,
         openSalesQuestions,
       };
 

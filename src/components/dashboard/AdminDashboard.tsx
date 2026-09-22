@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
 import { Card, Badge, Button, Tabs } from '@/components/ui';
+import { getSafeClickProps } from '@/utils/safeClick';
 import {
   Users,
   Briefcase,
@@ -35,6 +36,10 @@ export default function AdminDashboard() {
     domains,
     leads,
     stats,
+    totalDomainsCount,
+    activeDomainsCount,
+    expiringDomainsCount,
+    expiredDomainsCount,
     setActiveAdminTab,
     setDetailedCustomerView,
     setIsAddMemberModalOpen,
@@ -46,8 +51,9 @@ export default function AdminDashboard() {
 
   // Operational metrics calculated strictly from MongoDB data & live context
   const totalSales = stats?.totalSalesMembers ?? stats?.operationalStats?.totalSalesMembers ?? totalSalesMembers;
-  const activeDoms = stats?.activeDomains ?? stats?.operationalStats?.activeDomains ?? domains.filter((d) => d.status === 'ACTIVE').length;
-  const expiringDoms = stats?.expiringDomains ?? stats?.operationalStats?.expiringDomains ?? domains.filter((d) => d.status === 'EXPIRING_SOON').length;
+  const activeDoms = activeDomainsCount;
+  const expiringDoms = expiringDomainsCount;
+  const totalDoms = totalDomainsCount || domains.length;
 
   // Filtered entity search
   const filteredEntities = lookupQuery.trim()
@@ -290,7 +296,7 @@ export default function AdminDashboard() {
       >
         {/* Card 1: Total Sales Members */}
         <div
-          onClick={() => setActiveAdminTab('sales-members')}
+          {...getSafeClickProps(() => setActiveAdminTab('sales-members'))}
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',
@@ -350,7 +356,7 @@ export default function AdminDashboard() {
 
         {/* Card 2: Active Domains */}
         <div
-          onClick={() => setActiveAdminTab('websites-domains')}
+          {...getSafeClickProps(() => setActiveAdminTab('websites-domains'))}
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',
@@ -397,7 +403,7 @@ export default function AdminDashboard() {
                 {activeDoms}
               </span>
               <span style={{ fontSize: '0.78rem', color: '#334155', backgroundColor: '#f1f5f9', padding: '0.2rem 0.65rem', borderRadius: '9999px', fontWeight: 700, border: '1px solid #cbd5e1' }}>
-                of {domains.length} total
+                of {totalDoms} total
               </span>
             </div>
           </div>
@@ -410,7 +416,7 @@ export default function AdminDashboard() {
 
         {/* Card 8: Domains Expiring Soon */}
         <div
-          onClick={() => setActiveAdminTab('websites-domains')}
+          {...getSafeClickProps(() => setActiveAdminTab('websites-domains'))}
           style={{
             backgroundColor: '#ffffff',
             borderRadius: '18px',

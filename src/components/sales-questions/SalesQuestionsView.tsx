@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
 import { SalesQuestion } from '@/types';
-import { Card, Badge, Button, Input, Select, Modal } from '@/components/ui';
+import { Card, Badge, Button, Input, Select, Modal, SearchableSelect } from '@/components/ui';
 import {
   HelpCircle,
   MessageSquare,
@@ -546,30 +546,38 @@ export default function SalesQuestionsView() {
                 { value: 'LOW', label: 'LOW (General question)' },
               ]}
             />
-            <Select
+            <SearchableSelect
               label="Related Customer"
               value={selectedCustomerId}
-              onChange={(e) => setSelectedCustomerId(e.target.value)}
+              onChange={(val) => setSelectedCustomerId(val)}
+              placeholder="Search or select customer..."
+              searchPlaceholder="Search customer by name or ID..."
               options={[
                 { value: '', label: 'General / No Specific Customer' },
                 ...customers.map((c) => ({
                   value: c.customerId,
-                  label: `${c.name} (${c.customerId})`,
+                  label: c.name,
+                  subLabel: c.company,
+                  badge: c.customerId,
                 })),
               ]}
             />
           </div>
 
           <div style={{ marginTop: '1rem' }}>
-            <Select
+            <SearchableSelect
               label="Related Website (Optional)"
               value={selectedWebsiteId}
-              onChange={(e) => setSelectedWebsiteId(e.target.value)}
+              onChange={(val) => setSelectedWebsiteId(val)}
+              placeholder="Search or select website..."
+              searchPlaceholder="Search website by name, URL, or ID..."
               options={[
                 { value: '', label: 'None' },
                 ...websites.map((w) => ({
                   value: w.websiteId,
-                  label: `${w.name} (${w.websiteId})`,
+                  label: w.websiteName || w.name || w.websiteId,
+                  subLabel: w.websiteUrl || w.domainName || w.projectType || '',
+                  badge: w.websiteId,
                 })),
               ]}
             />

@@ -2,8 +2,9 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
-import { Bell, CheckCheck, Clock, UserPlus, CreditCard, RefreshCw, X, Globe } from 'lucide-react';
+import { Bell, CheckCheck, Clock, UserPlus, CreditCard, RefreshCw, X, Globe, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { getSafeClickProps } from '@/utils/safeClick';
 
 export interface NotificationDropdownProps {
   isOpen: boolean;
@@ -38,8 +39,8 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
 
   if (!isOpen) return null;
 
-  const handleNotificationClick = async (notifId: string, targetTab?: string) => {
-    // If the user was highlighting/selecting text, don't trigger navigation
+  const handleNotificationClick = async (notifId: string) => {
+    // If the user was highlighting/selecting text, don't trigger
     if (typeof window !== 'undefined') {
       const selection = window.getSelection();
       if (selection && selection.toString().trim().length > 0) {
@@ -47,15 +48,19 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
       }
     }
 
+    // Mark as seen in-place without navigating away or closing the dropdown
     await markNotificationRead(notifId);
-    if (targetTab) {
-      if (role === 'admin') {
-        setActiveAdminTab(targetTab as any);
-      } else if (role === 'developer') {
-        setActiveDeveloperTab(targetTab as any);
-      } else {
-        setActiveSalesTab(targetTab as any);
-      }
+  };
+
+  const handleNavigateToRecord = (e: React.MouseEvent, targetTab?: string) => {
+    e.stopPropagation();
+    if (!targetTab) return;
+    if (role === 'admin') {
+      setActiveAdminTab(targetTab as any);
+    } else if (role === 'developer') {
+      setActiveDeveloperTab(targetTab as any);
+    } else {
+      setActiveSalesTab(targetTab as any);
     }
     onClose();
   };
@@ -156,7 +161,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
           notifications.map((notif, idx) => (
             <div
               key={`nd-${notif.id || idx}-${idx}`}
-              onClick={() => handleNotificationClick(notif.id, notif.targetTab)}
+              {...getSafeClickProps(() => handleNotificationClick(notif.id))}
               style={{
                 padding: '0.75rem 1rem',
                 borderBottom: '1px solid var(--border-subtle)',
@@ -167,6 +172,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
                 alignItems: 'flex-start',
                 transition: 'background-color var(--transition-fast)',
               }}
+              title={notif.read ? 'Read' : 'Click to mark as read'}
             >
               <div
                 style={{
@@ -182,7 +188,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
               >
                 {getIconForType(notif.type)}
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <p
                   style={{
                     fontSize: '0.8125rem',
@@ -193,19 +199,43 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
                 >
                   {notif.title}
                 </p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.35 }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.35, wordBreak: 'break-word' }}>
                   {notif.message}
                 </p>
-                <span
-                  style={{
-                    fontSize: '0.68rem',
-                    color: 'var(--text-light)',
-                    display: 'block',
-                    marginTop: '0.35rem',
-                  }}
-                >
-                  {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.35rem' }}>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      color: 'var(--text-light)',
+                    }}
+                  >
+                    {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+
+                  {notif.targetTab && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleNavigateToRecord(e, notif.targetTab)}
+                      title={`Open ${notif.targetTab}`}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '0.1rem 0.35rem',
+                        borderRadius: '4px',
+                        color: 'var(--brand-accent)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.2rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      <span>View</span>
+                      <ExternalLink size={10} />
+                    </button>
+                  )}
+                </div>
               </div>
               {!notif.read && (
                 <div
@@ -215,7 +245,9 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
                     borderRadius: '50%',
                     backgroundColor: 'var(--brand-accent)',
                     marginTop: '0.5rem',
+                    flexShrink: 0,
                   }}
+                  title="Unread"
                 />
               )}
             </div>
