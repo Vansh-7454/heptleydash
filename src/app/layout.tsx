@@ -19,6 +19,11 @@ const fontJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: 'heptley | Business Management Portal',
   description: 'Internal business management and customer allocation system for heptley.',
+  icons: {
+    icon: '/images/heptley-logo.png',
+    shortcut: '/images/heptley-logo.png',
+    apple: '/images/heptley-logo.png',
+  },
 };
 
 export default function RootLayout({

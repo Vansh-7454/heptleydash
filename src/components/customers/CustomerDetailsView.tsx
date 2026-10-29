@@ -22,7 +22,7 @@ import {
   Sparkles,
   FileText,
 } from 'lucide-react';
-import CustomerAISalesIntelligence from './CustomerAISalesIntelligence';
+
 
 export default function CustomerDetailsView() {
   const {
@@ -622,10 +622,6 @@ export default function CustomerDetailsView() {
           </div>
         )}
       </Card>
-
-      {/* SECTION 8: AI SALES INTELLIGENCE */}
-      <CustomerAISalesIntelligence customer={customer} />
-
     </div>
   );
 }

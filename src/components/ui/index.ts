@@ -14,3 +14,4 @@ export { default as Pagination } from './Pagination';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as SearchableSelect } from './SearchableSelect';
 export type { SearchableOption, SearchableSelectProps } from './SearchableSelect';
+export { default as HeptleyLogo } from './HeptleyLogo';

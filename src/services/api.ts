@@ -1,13 +1,5 @@
 export const getApiBaseUrl = (): string => {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  if (typeof window !== 'undefined' && window.location.hostname) {
-    const protocol = window.location.protocol || 'http:';
-    const host = window.location.hostname;
-    return `${protocol}//${host}:5000/api`;
-  }
-  return 'http://localhost:5000/api';
+  return '/api';
 };
 
 const TOKEN_KEY = 'heptley_auth_token';
@@ -74,7 +66,7 @@ export async function apiRequest<T = any>(
   } catch (err: any) {
     if (err.name === 'TypeError' && (err.message.includes('fetch') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch'))) {
       throw new Error(
-        'Backend server is unreachable. Please ensure the Express API is running on port 5000.'
+        'Server is unreachable. Please ensure the development server is running.'
       );
     }
     throw err;

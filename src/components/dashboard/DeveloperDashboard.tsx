@@ -1503,12 +1503,20 @@ export default function DeveloperDashboard() {
                         </span>
                       </div>
 
-                      <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                        {q.subject || q.question.slice(0, 60)}
-                      </h4>
-                      <p style={{ fontSize: '0.85rem', color: '#334155', margin: '0.25rem 0 0', lineHeight: 1.4 }}>
-                        {q.question}
-                      </p>
+                      {q.subject && q.subject.trim() !== q.question.trim() && !q.question.startsWith(q.subject.trim()) ? (
+                        <>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                            {q.subject}
+                          </h4>
+                          <p style={{ fontSize: '0.85rem', color: '#475569', margin: '0.25rem 0 0', lineHeight: 1.4 }}>
+                            {q.question}
+                          </p>
+                        </>
+                      ) : (
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, lineHeight: 1.4 }}>
+                          {q.question}
+                        </h4>
+                      )}
                     </div>
 
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>

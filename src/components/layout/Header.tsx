@@ -93,6 +93,18 @@ export default function Header() {
 
   const pageInfo = getPageTitle();
 
+  const getUserInitials = () => {
+    if (role === 'admin') return 'AD';
+    if (userProfile?.name) {
+      const parts = userProfile.name.trim().split(/\s+/);
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return userProfile.name.slice(0, 2).toUpperCase();
+    }
+    return role === 'developer' ? 'DV' : 'SM';
+  };
+
   return (
     <header
       style={{
@@ -253,26 +265,22 @@ export default function Header() {
                 fontSize: '0.78rem',
                 fontWeight: 700,
                 letterSpacing: '0.02em',
+                flexShrink: 0,
+                overflow: 'hidden',
                 boxShadow: '0 0 8px var(--brand-accent-glow)',
               }}
             >
-              {role === 'admin'
-                ? 'AD'
-                : role === 'developer'
-                ? (userProfile.developerId ? userProfile.developerId.replace('-', '') : 'DEV')
-                : userProfile.memberId
-                ? userProfile.memberId.replace('-', '')
-                : 'SM'}
+              {getUserInitials()}
             </div>
 
-            <div style={{ textAlign: 'left', lineHeight: 1.15 }} className="desktop-only">
+            <div style={{ textAlign: 'left', lineHeight: 1.15, display: 'flex', alignItems: 'center', gap: '0.45rem' }} className="desktop-only">
               <span
                 style={{
                   fontSize: '0.8125rem',
                   fontWeight: 700,
                   color: 'var(--text-primary)',
                   display: 'inline-block',
-                  marginRight: '0.35rem',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {userProfile.name}
@@ -286,6 +294,7 @@ export default function Header() {
                   padding: '0.15rem 0.55rem',
                   borderRadius: '9999px',
                   border: `1px solid ${role === 'admin' ? '#bfdbfe' : role === 'developer' ? '#bbf7d0' : '#a7f3d0'}`,
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {role === 'admin'

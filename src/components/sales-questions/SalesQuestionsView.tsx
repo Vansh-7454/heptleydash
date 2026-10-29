@@ -300,42 +300,47 @@ export default function SalesQuestionsView() {
             const isAnswered = q.status === 'ANSWERED' || q.status === 'CLOSED';
 
             return (
-              <Card
+              <div
                 key={q.id || q.questionId}
                 style={{
-                  padding: '1.5rem',
-                  border: isAnswered ? '1.5px solid #cbd5e1' : '1px solid var(--border-default)',
+                  padding: '1.25rem 1.5rem',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
+                  borderRadius: '12px',
                   backgroundColor: '#ffffff',
-                  boxShadow: 'var(--shadow-sm)',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: '0.85rem', color: '#0284c7' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.78rem', color: '#475569', backgroundColor: '#f1f5f9', padding: '0.15rem 0.45rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                       {q.questionId}
                     </span>
                     <span
                       style={{
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        padding: '0.2rem 0.6rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        padding: '0.15rem 0.5rem',
                         borderRadius: '9999px',
-                        backgroundColor: q.priority === 'URGENT' ? '#fee2e2' : q.priority === 'HIGH' ? '#fee2e2' : q.priority === 'MEDIUM' ? '#ffedd5' : '#f0fdf4',
-                        color: q.priority === 'URGENT' ? '#991b1b' : q.priority === 'HIGH' ? '#dc2626' : q.priority === 'MEDIUM' ? '#ea580c' : '#16a34a',
-                        border: `1px solid ${q.priority === 'URGENT' ? '#fca5a5' : q.priority === 'HIGH' ? '#fecaca' : q.priority === 'MEDIUM' ? '#fed7aa' : '#bbf7d0'}`,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.02em',
+                        backgroundColor: q.priority === 'URGENT' ? '#fef2f2' : q.priority === 'HIGH' ? '#fffbeb' : '#f8fafc',
+                        color: q.priority === 'URGENT' ? '#b91c1c' : q.priority === 'HIGH' ? '#b45309' : '#475569',
+                        border: `1px solid ${q.priority === 'URGENT' ? '#fecaca' : q.priority === 'HIGH' ? '#fde68a' : '#e2e8f0'}`,
                       }}
                     >
                       {q.priority}
                     </span>
                     <span
                       style={{
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        padding: '0.2rem 0.6rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        padding: '0.15rem 0.5rem',
                         borderRadius: '9999px',
-                        backgroundColor: isAnswered ? '#dcfce7' : '#fef3c7',
-                        color: isAnswered ? '#15803d' : '#b45309',
-                        border: `1px solid ${isAnswered ? '#bbf7d0' : '#fde68a'}`,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.02em',
+                        backgroundColor: isAnswered ? '#f0fdf4' : q.status === 'IN_PROGRESS' ? '#f0f9ff' : '#f8fafc',
+                        color: isAnswered ? '#166534' : q.status === 'IN_PROGRESS' ? '#0369a1' : '#475569',
+                        border: `1px solid ${isAnswered ? '#bbf7d0' : q.status === 'IN_PROGRESS' ? '#bae6fd' : '#e2e8f0'}`,
                       }}
                     >
                       {q.status}
@@ -343,71 +348,98 @@ export default function SalesQuestionsView() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
                       {new Date(q.createdAt).toLocaleDateString()} at{' '}
                       {new Date(q.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
+                    </span>
 
                     {(isSales || currentUser?.role === 'admin') && (
-                      <Button
+                      <button
                         type="button"
-                        variant="outline"
-                        size="sm"
                         onClick={() => {
                           setDeleteError(null);
                           setQuestionToDelete(q);
                         }}
                         style={{
-                          height: '28px',
-                          padding: '0 0.55rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          color: '#dc2626',
-                          borderColor: '#fca5a5',
-                          backgroundColor: '#fff1f2',
+                          background: 'transparent',
+                          border: 'none',
+                          padding: '0.25rem 0.45rem',
+                          borderRadius: '6px',
+                          color: '#94a3b8',
+                          cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.35rem',
+                          gap: '0.3rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                          transition: 'color 0.15s ease',
                         }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
                         title="Delete Technical Question"
                       >
                         <Trash2 size={13} />
                         <span>Delete</span>
-                      </Button>
+                      </button>
                     )}
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 0.4rem 0' }}>
-                  {q.subject || q.question.slice(0, 60)}
-                </h3>
-                <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.5, margin: 0 }}>
-                  {q.question}
-                </p>
+                <div>
+                  {q.subject && q.subject.trim() !== q.question.trim() && !q.question.startsWith(q.subject.trim()) ? (
+                    <>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.35rem 0', lineHeight: 1.4 }}>
+                        {q.subject}
+                      </h3>
+                      <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.55, margin: 0 }}>
+                        {q.question}
+                      </p>
+                    </>
+                  ) : (
+                    <h3 style={{ fontSize: '1.025rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, lineHeight: 1.45 }}>
+                      {q.question}
+                    </h3>
+                  )}
+                </div>
 
-                {/* Metadata Pills: Asked by, Customer, Website */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid #f1f5f9' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    <User size={14} color="#64748b" />
+                {/* Metadata Row: Asked by, Customer, Website */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1.25rem',
+                    flexWrap: 'wrap',
+                    marginTop: '0.9rem',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid #f1f5f9',
+                    fontSize: '0.8rem',
+                    color: '#64748b',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <User size={14} color="#94a3b8" />
                     <span>
-                      Asked by: <strong style={{ color: 'var(--text-primary)' }}>{q.askedByName}</strong> ({q.askedBy})
+                      Asked by: <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{q.askedByName || q.askedBySalesMemberId || 'Sales Member'}</strong>
+                      {q.askedBySalesMemberId && q.askedByName && q.askedBySalesMemberId !== q.askedByName && (
+                        <span style={{ color: '#94a3b8' }}> ({q.askedBySalesMemberId})</span>
+                      )}
                     </span>
                   </div>
 
                   {q.customerName && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      <Briefcase size={14} color="#0284c7" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Briefcase size={14} color="#94a3b8" />
                       <span>
-                        Client: <strong style={{ color: 'var(--text-primary)' }}>{q.customerName}</strong>
+                        Client: <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{q.customerName}</strong>
                       </span>
                     </div>
                   )}
 
                   {q.websiteName && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      <Globe size={14} color="#059669" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Globe size={14} color="#94a3b8" />
                       <span>
-                        Website: <strong style={{ color: 'var(--text-primary)' }}>{q.websiteName}</strong>
+                        Website: <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{q.websiteName}</strong>
                       </span>
                     </div>
                   )}
@@ -417,32 +449,45 @@ export default function SalesQuestionsView() {
                 {q.answer ? (
                   <div
                     style={{
-                      marginTop: '1.15rem',
-                      padding: '1.15rem 1.25rem',
-                      borderRadius: '12px',
-                      backgroundColor: '#f0fdf4',
-                      border: '1.5px solid #a7f3d0',
+                      marginTop: '0.9rem',
+                      padding: '0.95rem 1.15rem',
+                      borderRadius: '10px',
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#15803d', fontWeight: 800, fontSize: '0.85rem' }}>
-                        <CheckCircle2 size={16} />
-                        <span>Engineering Response by {q.answeredByName || 'Developer'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontWeight: 600, fontSize: '0.825rem' }}>
+                        <CheckCircle2 size={15} color="#16a34a" />
+                        <span style={{ color: 'var(--text-primary)' }}>
+                          Response from <strong style={{ fontWeight: 600 }}>{q.answeredByName || 'Developer'}</strong>
+                        </span>
                       </div>
                       {q.answeredAt && (
-                        <span style={{ fontSize: '0.75rem', color: '#166534', fontWeight: 600 }}>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 500 }}>
                           {new Date(q.answeredAt).toLocaleDateString()}
                         </span>
                       )}
                     </div>
-                    <p style={{ margin: 0, fontSize: '0.875rem', color: '#14532d', lineHeight: 1.5 }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#334155', lineHeight: 1.55 }}>
                       {q.answer}
                     </p>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid #f1f5f9' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: '#b45309' }}>
-                      <Clock size={14} />
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: '0.85rem',
+                      paddingTop: '0.75rem',
+                      borderTop: '1px dashed #e2e8f0',
+                      flexWrap: 'wrap',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: '#64748b' }}>
+                      <Clock size={14} color="#94a3b8" />
                       <span>Awaiting response from development team</span>
                     </div>
 
@@ -459,7 +504,7 @@ export default function SalesQuestionsView() {
                     )}
                   </div>
                 )}
-              </Card>
+              </div>
             );
           })}
         </div>

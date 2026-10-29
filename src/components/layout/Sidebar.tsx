@@ -3,6 +3,7 @@
 import React from 'react';
 import { useDashboard } from '@/context/DashboardContext';
 import { AdminTab, SalesTab, DeveloperTab } from '@/types';
+import { HeptleyLogo } from '@/components/ui';
 import {
   LayoutDashboard,
   Users,
@@ -42,6 +43,18 @@ export default function Sidebar() {
     setDetailedCustomerView,
     logout,
   } = useDashboard();
+
+  const getUserInitials = () => {
+    if (role === 'admin') return 'AD';
+    if (userProfile?.name) {
+      const parts = userProfile.name.trim().split(/\s+/);
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return userProfile.name.slice(0, 2).toUpperCase();
+    }
+    return role === 'developer' ? 'DV' : 'SM';
+  };
 
   const handleNavClick = (tab: AdminTab | SalesTab | DeveloperTab) => {
     setDetailedCustomerView(null);
@@ -138,69 +151,11 @@ export default function Sidebar() {
             }}
           >
             {!isSidebarCollapsed && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    backgroundColor: '#dbeafe',
-                    color: '#0284c7',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid #bfdbfe',
-                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.15)',
-                  }}
-                >
-                  <Shield size={20} />
-                </div>
-                <div>
-                  <span
-                    style={{
-                      fontWeight: 800,
-                      fontSize: '1.15rem',
-                      color: 'var(--text-primary)',
-                      letterSpacing: '-0.02em',
-                      display: 'block',
-                      lineHeight: 1.15,
-                    }}
-                  >
-                    heptley
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '0.7rem',
-                      display: 'block',
-                      color: '#0284c7',
-                      fontWeight: 800,
-                      letterSpacing: '0.04em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Business Portal
-                  </span>
-                </div>
-              </div>
+              <HeptleyLogo size={36} showText={true} subtext="Business Portal" />
             )}
 
             {isSidebarCollapsed && (
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  backgroundColor: '#dbeafe',
-                  color: '#0284c7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid #bfdbfe',
-                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.15)',
-                }}
-              >
-                <Shield size={20} />
-              </div>
+              <HeptleyLogo size={36} showText={false} />
             )}
 
             {/* Desktop Collapse Toggle */}
@@ -340,10 +295,11 @@ export default function Sidebar() {
                     fontSize: '0.82rem',
                     fontWeight: 800,
                     flexShrink: 0,
+                    overflow: 'hidden',
                     boxShadow: '0 2px 6px rgba(2, 132, 199, 0.15)',
                   }}
                 >
-                  {role === 'admin' ? 'AD' : userProfile.memberId ? userProfile.memberId.replace('-', '') : 'SM'}
+                  {getUserInitials()}
                 </div>
                 <div style={{ overflow: 'hidden', lineHeight: 1.2 }}>
                   <p

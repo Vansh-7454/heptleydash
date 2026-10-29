@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDashboard } from '@/context/DashboardContext';
+import { HeptleyLogo } from '@/components/ui';
 import {
   Eye,
   EyeOff,
@@ -205,25 +206,7 @@ export default function LoginPage() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #091321 0%, #1e293b 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '1.35rem',
-                boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
-                border: '1.5px solid #cbd5e1',
-                userSelect: 'none',
-              }}
-            >
-              h.
-            </div>
+            <HeptleyLogo size={42} showText={false} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span
@@ -519,24 +502,8 @@ export default function LoginPage() {
 
             {/* Brand Header */}
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #091321 0%, #1e293b 100%)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '1.85rem',
-                  boxShadow: '0 8px 24px rgba(2, 132, 199, 0.3)',
-                  border: '1px solid var(--border-default)',
-                  marginBottom: '1rem',
-                }}
-              >
-                h.
+              <div style={{ display: 'inline-flex', marginBottom: '1.25rem' }}>
+                <HeptleyLogo size={62} showText={false} />
               </div>
               <h1
                 style={{
@@ -1370,24 +1337,7 @@ export default function LoginPage() {
           {/* Column 1: Brand & Overview */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #091321 0%, #1e293b 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '1.25rem',
-                  border: '1px solid var(--border-default)',
-                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
-                }}
-              >
-                h.
-              </div>
+              <HeptleyLogo size={36} showText={false} />
               <span style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                 heptley
               </span>

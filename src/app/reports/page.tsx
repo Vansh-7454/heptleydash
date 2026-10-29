@@ -18,7 +18,7 @@ export default function ReportsRoute() {
   }, [role, router]);
 
   if (!role) {
-    return null;
+    return null;                                                                                                         
   }
 
   // Role guard: Sales members are denied access to company reports

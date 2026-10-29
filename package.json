@@ -3,27 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -k -n frontend,backend -c cyan,magenta \"next dev\" \"npm --prefix backend run dev\"",
-    "dev:frontend": "next dev",
-    "dev:backend": "npm --prefix backend run dev",
-    "dev:all": "npm run dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^2.24.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
     "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
+    "mongoose": "^9.10.1",
     "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "concurrently": "^10.0.5",
     "typescript": "^5.7.0"
   }
 }

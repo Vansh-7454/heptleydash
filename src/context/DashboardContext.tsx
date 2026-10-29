@@ -418,6 +418,32 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshData]);
 
+  // Periodic background auto-sync (15s) and tab focus sync to keep notifications and CRM data fresh
+  useEffect(() => {
+    if (!role) return;
+
+    const interval = setInterval(() => {
+      refreshData();
+      refreshStats();
+    }, 15000);
+
+    const handleSync = () => {
+      if (document.visibilityState === 'visible') {
+        refreshData();
+        refreshStats();
+      }
+    };
+
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleSync);
+      document.removeEventListener('visibilitychange', handleSync);
+    };
+  }, [role, refreshData, refreshStats]);
+
   // Real-time Socket.IO Event Listeners
   useEffect(() => {
     if (!role) return;
